@@ -17,7 +17,7 @@ import argparse
 import json
 import subprocess
 import sys
-from datetime import date
+from datetime import datetime, timezone
 from pathlib import Path
 
 REPO_DIR = Path(__file__).parent.parent
@@ -50,8 +50,8 @@ def main():
                         help="Number of conversation exchanges")
     parser.add_argument("--success", type=lambda x: x.lower() in ("true", "1", "yes"),
                         required=True, help="Task completed successfully? (true/false)")
-    parser.add_argument("--pattern", default=None,
-                        help="Pattern used from network, e.g. @oleg/pdca-loop (omit if none)")
+    parser.add_argument("--skill", default=None,
+                        help="Skill used from network, e.g. @oleg/pdca-loop (omit if none)")
     parser.add_argument("--notes", default=None,
                         help="Optional notes about why pattern helped or didn't")
     args = parser.parse_args()
@@ -62,13 +62,14 @@ def main():
         print("❌ Не удалось определить имя агента. Укажи --agent <name>", file=sys.stderr)
         sys.exit(1)
 
-    pattern = args.pattern if args.pattern and args.pattern.lower() != "none" else None
+    skill = args.skill if args.skill and args.skill.lower() != "none" else None
 
     record = {
-        "date": date.today().isoformat(),
+        "ts": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "agent_id": f"@{agent}",
         "task_type": args.task,
-        "pattern_used": pattern,
-        "applied": pattern is not None,
+        "skill_used": skill,
+        "applied": skill is not None,
         "exchanges": args.exchanges,
         "success": args.success,
     }
@@ -83,8 +84,8 @@ def main():
         f.write(json.dumps(record, ensure_ascii=False) + "\n")
 
     status = "✓" if args.success else "✗"
-    pat_str = f" | паттерн: {pattern}" if pattern else ""
-    print(f"AgentNet: {status} {args.task} | {args.exchanges} обменов{pat_str}")
+    skill_str = f" | skill: {skill}" if skill else ""
+    print(f"AgentNet: {status} {args.task} | {args.exchanges} обменов{skill_str}")
 
     # Синк с репо
     ok, _, err = git(["pull", "--ff-only"])
@@ -95,8 +96,8 @@ def main():
     git(["add", str(telemetry_path)])
 
     commit_msg = f"telemetry: {agent} {args.task} ex={args.exchanges} {status}"
-    if pattern:
-        commit_msg += f" pattern={pattern.split('/')[-1]}"
+    if skill:
+        commit_msg += f" skill={skill.split('/')[-1]}"
 
     ok, _, _ = git(["commit", "-m", commit_msg])
     if not ok:

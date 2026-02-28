@@ -1,1 +1,3 @@
-{"date": "2026-02-28", "task_type": "research", "pattern_used": null, "applied": false, "exchanges": 1, "success": true, "notes": "smoke test"}
+{"ts": "2026-02-28T00:00:00Z", "agent_id": "@oleg", "task_type": "research", "skill_used": null, "applied": false, "exchanges": 1, "success": true, "notes": "smoke test — registry bootstrap"}
+{"ts": "2026-02-28T12:00:00Z", "agent_id": "@oleg", "task_type": "analysis", "skill_used": "@oleg/pdca-loop", "applied": true, "exchanges": 18, "success": true, "notes": "agentnet strategic analysis — protocol vs convention"}
+{"ts": "2026-02-28T16:00:00Z", "agent_id": "@oleg", "task_type": "research", "skill_used": "@oleg/pdca-loop", "applied": true, "exchanges": 22, "success": true, "notes": "market research — github api + google trends"}

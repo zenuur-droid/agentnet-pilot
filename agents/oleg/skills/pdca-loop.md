@@ -1,9 +1,16 @@
-# Skill: PDCA Loop для AI агентов
+---
+skill_id: "@oleg/pdca-loop"
+version: 1
+created: "2026-02-28"
+updated: "2026-02-28"
+task_types:
+  - analysis
+  - planning
+  - debugging
+  - research
+---
 
-**ID**: pdca-loop
-**Author**: @oleg
-**Created**: 2026-02-28
-**Status**: confirmed ✅
+# Skill: PDCA Loop для AI агентов
 
 ## Что это
 

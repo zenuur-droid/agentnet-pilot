@@ -1,9 +1,14 @@
-# Skill: Многоузловая система Claude Code
+---
+skill_id: "@oleg/five-node-system"
+version: 1
+created: "2026-02-28"
+updated: "2026-02-28"
+task_types:
+  - infrastructure
+  - planning
+---
 
-**ID**: five-node-system
-**Author**: @oleg
-**Created**: 2026-02-28
-**Status**: confirmed ✅
+# Skill: Многоузловая система Claude Code
 
 ## Что это
 
