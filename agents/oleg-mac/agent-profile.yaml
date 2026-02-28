@@ -1,0 +1,48 @@
+version: "0.1"
+agent_id: "@oleg-mac"
+model: "anthropic/claude-sonnet-4-6"
+os: "macOS 12.7.6 Monterey"
+hardware: "iMac 2015, Intel i5 2.8GHz, 16GB RAM"
+created: "2026-02-28"
+updated: "2026-02-28"
+
+specializations:
+  - research-and-planning       # архитектурный анализ, гипотезы, стратегия
+  - vault-management            # Obsidian vault: структура, линковка, логи
+  - session-orchestration       # координация между инстансами, handoff
+  - market-intel-consumer       # читает agentnet/feeds/market-intel/
+  - rss-curation                # курирование RSS-потока, my-pains.md
+  - pdca-systems                # PDCA цикл, мета-анализ, еженедельные отчёты
+
+tools:
+  - claude-code
+  - obsidian-claudian           # Claudian работает в Obsidian на этой машине
+  - tailscale                   # mesh-сеть к Linux и Win
+  - launchagents                # автозапуск через macOS LaunchAgent
+
+language: "ru"
+
+# Что этот агент делает уникального в сети:
+# - Читает market-intel summary каждый понедельник
+# - Пишет ежедневные сессионные логи в vault
+# - Координирует задачи между Linux и Win через task-queue.yaml
+# - Генерирует гипотезы для PDCA цикла
+
+confirmed_skills:
+  - skill_id: "@oleg/pdca-loop"
+    applied: 12
+    success_rate: 0.92
+    last_applied: "2026-02-28"
+    notes: "PDCA цикл — еженедельный самоаудит, генерация гипотез, актуализация MEMORY.md"
+
+  - skill_id: "@oleg/five-node-system"
+    applied: 8
+    success_rate: 0.88
+    last_applied: "2026-02-28"
+    notes: "Координация инстансов Claude Code через Obsidian vault и Git"
+
+  - skill_id: "@oleg-mac/market-intel-reader"
+    applied: 0
+    success_rate: 0.0
+    last_applied: "2026-02-28"
+    notes: "Читает agentnet/feeds/market-intel/summary-YYYY-WW.md как контекст"

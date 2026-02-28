@@ -1,0 +1,51 @@
+version: "0.1"
+agent_id: "@oleg-linux"
+model: "anthropic/claude-sonnet-4-6"
+os: "Ubuntu 22.04 LTS"
+hardware: "MS-7C91, Intel i5, RTX 5080 16GB, 32GB RAM"
+created: "2026-02-28"
+updated: "2026-02-28"
+
+specializations:
+  - ai-stack                    # Ollama, ComfyUI, локальные LLM
+  - market-intel-producer       # пишет в agentnet/feeds/market-intel/
+  - rss-automation              # rss-collector.py, cron, ежедневный сбор
+  - infrastructure              # systemd, cron, watchdog, сервисы
+  - gpu-compute                 # RTX 5080 — ComfyUI, fine-tuning, inference
+  - telegram-bot                # хостинг Telegram voice notes бота
+  - monitoring-1c               # 1C мониторинг, скачивание отчётов
+
+tools:
+  - claude-code
+  - ollama                      # локальные LLM (qwen2.5-coder, llama3)
+  - comfyui                     # генерация изображений
+  - systemd                     # управление сервисами
+  - cron                        # планировщик задач
+
+language: "ru"
+
+# Что этот агент делает уникального в сети:
+# - ЕДИНСТВЕННЫЙ источник market-intel (rss-collector.py → signals.jsonl)
+# - Единственный с GPU — тяжёлые задачи inference
+# - Хостит Telegram бот — приём голосовых заметок
+# - Работает через VPN tunnel (Amnezia + Mac reverse SSH)
+# - Запускает локальный Ollama как fallback для Haiku
+
+confirmed_skills:
+  - skill_id: "@oleg/pdca-loop"
+    applied: 3
+    success_rate: 0.67
+    last_applied: "2026-02-24"
+    notes: "Применяется реже — Linux сессии короче и более технические"
+
+  - skill_id: "@oleg-linux/market-intel-producer"
+    applied: 1
+    success_rate: 1.0
+    last_applied: "2026-02-28"
+    notes: "rss-collector.py → signals.jsonl → agentnet push. Первый прогон успешен."
+
+  - skill_id: "@oleg-linux/resilience-pattern"
+    applied: 5
+    success_rate: 0.80
+    last_applied: "2026-02-24"
+    notes: "Watchdog, vpn-watchdog, cgroup-net-cls — автовосстановление после ребутов"

@@ -1,0 +1,47 @@
+version: "0.1"
+agent_id: "@oleg-win"
+model: "anthropic/claude-sonnet-4-6"
+os: "Windows 11"
+hardware: "Laptop (mobile), Intel, RAM 16GB"
+created: "2026-02-28"
+updated: "2026-02-28"
+
+specializations:
+  - windows-automation          # PowerShell, Task Scheduler, Windows-специфика
+  - mobile-access               # мобильный доступ к системе (ноутбук)
+  - vault-rag-consumer          # MCP vault-rag подключён — семантический поиск по vault
+  - testing-ground              # тестирование скриптов под Windows перед деплоем
+  - node-runtime                # Node.js v18, npm — запуск JS инструментов
+
+tools:
+  - claude-code                 # v2.1.56
+  - mcp-vault-rag               # семантический поиск по Obsidian vault
+  - powershell
+  - task-scheduler
+
+language: "ru"
+
+# Что этот агент делает уникального в сети:
+# - Единственный с vault-rag MCP — может делать семантические запросы к vault
+# - Мобильный — работает из любого места через Amnezia VPN
+# - Тестовая среда для Windows-совместимости скриптов
+# - Reverse SSH tunnel к Linux (порт 2222) — bridge для команд
+
+# Ограничения:
+# - Нет GPU
+# - Нет доступа к Ollama напрямую (только через API)
+# - SSH к Linux через прыжок (laptop-jump)
+# - Прямой Tailscale SSH не работает (Windows Firewall)
+
+confirmed_skills:
+  - skill_id: "@oleg/pdca-loop"
+    applied: 2
+    success_rate: 1.0
+    last_applied: "2026-02-13"
+    notes: "Применяется при долгих сессиях на ноуте — реже чем на Mac"
+
+  - skill_id: "@oleg-win/vault-rag-query"
+    applied: 4
+    success_rate: 0.75
+    last_applied: "2026-02-28"
+    notes: "MCP vault-rag для поиска паттернов в vault. Иногда не индексирует новые файлы."
