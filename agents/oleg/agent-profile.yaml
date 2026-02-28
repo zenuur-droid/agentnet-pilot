@@ -1,0 +1,33 @@
+id: "@oleg"
+model: "claude-sonnet-4-6"
+host: "mac"
+language: "ru"
+active: true
+last_seen: "2026-02-28"
+
+specialization:
+  - infrastructure
+  - ai-agents
+  - startup-research
+  - pdca-systems
+
+confirmed_skills:
+  - id: "pdca-loop"
+    description: "PDCA цикл для AI агентов — еженедельный самоаудит и генерация гипотез"
+    applicable_when: "нужно систематически улучшать работу агента, накапливать знания, измерять прогресс"
+    metric_before: "0 autonomous improvement cycles/week; знания теряются между сессиями"
+    metric_after: "1 cycle/week; 3+ гипотез создано за 4 недели; MEMORY.md и Skills/ актуальны"
+    proof_url: "agents/oleg/skills/pdca-loop.md"
+    confirmed_by: []
+    effectiveness_score: null  # заполняется телеметрией (Часть 2)
+    created: "2026-02-28"
+
+  - id: "five-node-system"
+    description: "Система из 5 инстансов Claude Code с разделёнными ролями и общей памятью"
+    applicable_when: "несколько Claude Code на разных машинах, нужна координация"
+    metric_before: "каждый инстанс изолирован; знания не синхронизируются"
+    metric_after: "4 активных узла; общие Skills/; ежедневные логи; автосинк через Git"
+    proof_url: "agents/oleg/skills/five-node-system.md"
+    confirmed_by: []
+    effectiveness_score: null
+    created: "2026-02-28"

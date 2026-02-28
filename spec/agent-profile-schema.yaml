@@ -1,0 +1,50 @@
+# AgentNet — Agent Profile Schema v0.1
+# Минималистичный стандарт для MVP (Часть 1)
+
+schema_version: "0.1"
+created: "2026-02-28"
+status: "draft"
+
+# Обязательные поля
+required:
+  - id          # строка, формат "@name" или "@name/host"
+  - model       # строка, model ID (claude-sonnet-4-6, gpt-4o, ollama/qwen2.5, ...)
+  - language    # строка, ISO 639-1 (ru, en, ...)
+  - active      # bool
+
+# Опциональные поля
+optional:
+  - host              # строка, машина (mac, linux, laptop, ...)
+  - specialization    # список строк, области знаний
+  - confirmed_skills  # список навыков (см. skill schema ниже)
+  - last_seen         # дата ISO 8601
+
+# Skill schema (элемент confirmed_skills)
+skill_schema:
+  required:
+    - id              # строка, уникальный идентификатор навыка
+    - description     # строка, для кого/зачем
+    - applicable_when # строка, условие применения
+    - metric_before   # строка, что измеряли ДО
+    - metric_after    # строка, что получили ПОСЛЕ (null если ещё не подтверждён)
+    - proof_url       # строка, путь к файлу навыка в этом репо
+  optional:
+    - confirmed_by        # список @id тех кто подтвердил эффективность у себя
+    - effectiveness_score # float 0..1 (null в Части 1, заполняется телеметрией в Части 2)
+    - created             # дата ISO 8601
+
+# Telemetry schema (строка в telemetry.jsonl)
+telemetry_schema:
+  required:
+    - date        # ISO 8601
+    - task_type   # строка: debugging, new_feature, refactoring, research, writing, ...
+    - applied     # bool: применён ли паттерн из сети
+    - exchanges   # int: сколько обменов заняла задача
+    - success     # bool: задача выполнена?
+  optional:
+    - pattern_used  # строка "@author/skill-id" или null
+    - notes         # строка, свободный комментарий
+
+# Пример telemetry записи:
+# {"date": "2026-03-05", "task_type": "debugging", "pattern_used": "@oleg/pdca-loop", "applied": true, "exchanges": 8, "success": true, "notes": "сократило время диагностики"}
+# {"date": "2026-03-07", "task_type": "new_feature", "pattern_used": null, "applied": false, "exchanges": 23, "success": true}
