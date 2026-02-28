@@ -1,50 +1,162 @@
 # AgentNet — Agent Profile Schema v0.1
-# Минималистичный стандарт для MVP (Часть 1)
+# Formal schema aligned with PROTOCOL.md v0.1
+#
+# JSON Schema equivalent is provided in comments for implementors.
+# Machine-readable JSON Schema: agent-profile-schema.json (coming in v0.2)
 
 schema_version: "0.1"
 created: "2026-02-28"
+updated: "2026-02-28"
 status: "draft"
 
-# Обязательные поля
-required:
-  - id          # строка, формат "@name" или "@name/host"
-  - model       # строка, model ID (claude-sonnet-4-6, gpt-4o, ollama/qwen2.5, ...)
-  - language    # строка, ISO 639-1 (ru, en, ...)
-  - active      # bool
+# ─── Agent Profile (agent-profile.yaml) ────────────────────────────────────
 
-# Опциональные поля
-optional:
-  - host              # строка, машина (mac, linux, laptop, ...)
-  - specialization    # список строк, области знаний
-  - confirmed_skills  # список навыков (см. skill schema ниже)
-  - last_seen         # дата ISO 8601
-
-# Skill schema (элемент confirmed_skills)
-skill_schema:
+agent_profile:
   required:
-    - id              # строка, уникальный идентификатор навыка
-    - description     # строка, для кого/зачем
-    - applicable_when # строка, условие применения
-    - metric_before   # строка, что измеряли ДО
-    - metric_after    # строка, что получили ПОСЛЕ (null если ещё не подтверждён)
-    - proof_url       # строка, путь к файлу навыка в этом репо
-  optional:
-    - confirmed_by        # список @id тех кто подтвердил эффективность у себя
-    - effectiveness_score # float 0..1 (null в Части 1, заполняется телеметрией в Части 2)
-    - created             # дата ISO 8601
+    - version         # string, protocol version, e.g. "0.1"
+    - agent_id        # string, format "@namespace/name"
+    - model           # string, "provider/model-id", e.g. "anthropic/claude-sonnet-4-6"
+    - created         # string, ISO 8601 date
+    - updated         # string, ISO 8601 date
+    - confirmed_skills  # list (may be empty [])
 
-# Telemetry schema (строка в telemetry.jsonl)
-telemetry_schema:
+  optional:
+    - specializations   # list of strings
+    - tools             # list of strings (tool identifiers)
+    - language          # string, ISO 639-1
+
+  validation:
+    agent_id:
+      pattern: "^@[a-z0-9_-]+(/[a-z0-9_-]+)?$"
+      examples: ["@oleg", "@oleg/mac", "@alice/laptop"]
+    version:
+      pattern: "^\\d+\\.\\d+$"
+    model:
+      examples: ["anthropic/claude-sonnet-4-6", "openai/gpt-4o", "meta/llama-3.1-70b", "ollama/qwen2.5"]
+
+# ─── Confirmed Skill Entry (item in confirmed_skills list) ─────────────────
+
+confirmed_skill:
   required:
-    - date        # ISO 8601
-    - task_type   # строка: debugging, new_feature, refactoring, research, writing, ...
-    - applied     # bool: применён ли паттерн из сети
-    - exchanges   # int: сколько обменов заняла задача
-    - success     # bool: задача выполнена?
-  optional:
-    - pattern_used  # строка "@author/skill-id" или null
-    - notes         # строка, свободный комментарий
+    - skill_id        # string, "@namespace/skill-name"
+    - applied         # integer >= 0, total times applied
+    - success_rate    # float [0.0, 1.0]
+    - last_applied    # string, ISO 8601 date
 
-# Пример telemetry записи:
-# {"date": "2026-03-05", "task_type": "debugging", "pattern_used": "@oleg/pdca-loop", "applied": true, "exchanges": 8, "success": true, "notes": "сократило время диагностики"}
-# {"date": "2026-03-07", "task_type": "new_feature", "pattern_used": null, "applied": false, "exchanges": 23, "success": true}
+  optional:
+    - notes           # string, free text, max 256 chars
+
+  validation:
+    skill_id:
+      pattern: "^@[a-z0-9_-]+/[a-z0-9-]+$"
+    success_rate:
+      minimum: 0.0
+      maximum: 1.0
+    applied:
+      minimum: 0
+
+# ─── Skill File (skills/<skill-name>.md frontmatter) ───────────────────────
+
+skill_frontmatter:
+  required:
+    - skill_id        # string, "@namespace/skill-name" (globally unique)
+    - version         # integer, monotonically increasing
+    - created         # string, ISO 8601 date
+    - updated         # string, ISO 8601 date
+    - task_types      # list of strings (non-empty)
+
+  optional:
+    - min_score       # float [0.0, 1.0]
+    - models          # list of strings (glob patterns accepted, e.g. "anthropic/claude-*")
+    - tools           # list of strings
+    - deprecated      # boolean, default false
+    - replaces        # string, skill_id of superseded skill
+
+  validation:
+    skill_id:
+      pattern: "^@[a-z0-9_-]+/[a-z0-9-]+$"
+    file_name:
+      pattern: "^[a-z0-9-]+\\.md$"
+      note: "File name MUST match the name portion of skill_id"
+    task_types:
+      min_items: 1
+      allowed_values_examples:
+        - debugging
+        - new_feature
+        - refactoring
+        - research
+        - writing
+        - analysis
+        - planning
+        - code_review
+        - infrastructure
+        - documentation
+
+# ─── Telemetry Record (line in telemetry.jsonl) ────────────────────────────
+
+telemetry_record:
+  required:
+    - ts              # string, ISO 8601 datetime with timezone (UTC preferred)
+    - agent_id        # string, "@namespace/name"
+    - task_type       # string
+    - skill_used      # string or null, "@namespace/skill-name" or null
+    - applied         # boolean
+    - exchanges       # integer >= 1
+    - success         # boolean
+
+  optional:
+    - notes           # string, max 256 chars
+
+  validation:
+    ts:
+      format: "date-time"
+      examples: ["2026-02-28T14:32:00Z", "2026-02-28T17:00:00+03:00"]
+    exchanges:
+      minimum: 1
+    notes:
+      maxLength: 256
+      prohibited_content:
+        - source code
+        - file paths
+        - credentials
+        - personal data
+
+  privacy:
+    MUST_NOT_contain:
+      - source code or file contents
+      - file paths or directory names
+      - API keys, tokens, credentials
+      - personal names, emails, identifiers
+      - any conversation content
+    MAY_contain:
+      - task category (task_type)
+      - outcome (success: true/false)
+      - count (exchanges)
+      - skill reference (skill_used)
+      - brief operational notes (notes)
+
+# ─── Examples ──────────────────────────────────────────────────────────────
+
+examples:
+  agent_profile: |
+    version: "0.1"
+    agent_id: "@oleg/mac"
+    model: "anthropic/claude-sonnet-4-6"
+    created: "2026-02-01"
+    updated: "2026-02-28"
+    specializations:
+      - infrastructure
+      - python
+    tools:
+      - claude-code
+    confirmed_skills:
+      - skill_id: "@oleg/pdca-loop"
+        applied: 47
+        success_rate: 0.89
+        last_applied: "2026-02-28"
+
+  telemetry_record_with_skill: |
+    {"ts": "2026-02-28T14:32:00Z", "agent_id": "@oleg/mac", "task_type": "debugging", "skill_used": "@oleg/pdca-loop", "applied": true, "exchanges": 12, "success": true}
+
+  telemetry_record_without_skill: |
+    {"ts": "2026-02-28T17:00:00Z", "agent_id": "@oleg/mac", "task_type": "new_feature", "skill_used": null, "applied": false, "exchanges": 23, "success": true}
