@@ -1,0 +1,360 @@
+{
+  "generated_at": "2026-03-01T03:05:01.806662",
+  "week": "2026-W09",
+  "prev_week": "2026-W08",
+  "curr_signals_count": 65,
+  "prev_signals_count": 0,
+  "rising": [
+    {
+      "term": "llm",
+      "curr": 45,
+      "prev": 0,
+      "pct_change": null,
+      "label": "NEW"
+    },
+    {
+      "term": "inference",
+      "curr": 22,
+      "prev": 0,
+      "pct_change": null,
+      "label": "NEW"
+    },
+    {
+      "term": "model",
+      "curr": 19,
+      "prev": 0,
+      "pct_change": null,
+      "label": "NEW"
+    },
+    {
+      "term": "hugging",
+      "curr": 18,
+      "prev": 0,
+      "pct_change": null,
+      "label": "NEW"
+    },
+    {
+      "term": "face",
+      "curr": 18,
+      "prev": 0,
+      "pct_change": null,
+      "label": "NEW"
+    },
+    {
+      "term": "hugging face",
+      "curr": 18,
+      "prev": 0,
+      "pct_change": null,
+      "label": "NEW"
+    },
+    {
+      "term": "растёт",
+      "curr": 17,
+      "prev": 0,
+      "pct_change": null,
+      "label": "NEW"
+    },
+    {
+      "term": "optimization",
+      "curr": 15,
+      "prev": 0,
+      "pct_change": null,
+      "label": "NEW"
+    },
+    {
+      "term": "моделей",
+      "curr": 15,
+      "prev": 0,
+      "pct_change": null,
+      "label": "NEW"
+    },
+    {
+      "term": "claude",
+      "curr": 15,
+      "prev": 0,
+      "pct_change": null,
+      "label": "NEW"
+    },
+    {
+      "term": "models",
+      "curr": 12,
+      "prev": 0,
+      "pct_change": null,
+      "label": "NEW"
+    },
+    {
+      "term": "api",
+      "curr": 12,
+      "prev": 0,
+      "pct_change": null,
+      "label": "NEW"
+    },
+    {
+      "term": "data",
+      "curr": 12,
+      "prev": 0,
+      "pct_change": null,
+      "label": "NEW"
+    },
+    {
+      "term": "training",
+      "curr": 12,
+      "prev": 0,
+      "pct_change": null,
+      "label": "NEW"
+    },
+    {
+      "term": "mcp",
+      "curr": 12,
+      "prev": 0,
+      "pct_change": null,
+      "label": "NEW"
+    },
+    {
+      "term": "reasoning",
+      "curr": 11,
+      "prev": 0,
+      "pct_change": null,
+      "label": "NEW"
+    },
+    {
+      "term": "vision",
+      "curr": 11,
+      "prev": 0,
+      "pct_change": null,
+      "label": "NEW"
+    },
+    {
+      "term": "спрос",
+      "curr": 11,
+      "prev": 0,
+      "pct_change": null,
+      "label": "NEW"
+    },
+    {
+      "term": "evaluation",
+      "curr": 10,
+      "prev": 0,
+      "pct_change": null,
+      "label": "NEW"
+    },
+    {
+      "term": "модели",
+      "curr": 9,
+      "prev": 0,
+      "pct_change": null,
+      "label": "NEW"
+    },
+    {
+      "term": "становится",
+      "curr": 9,
+      "prev": 0,
+      "pct_change": null,
+      "label": "NEW"
+    },
+    {
+      "term": "learning",
+      "curr": 9,
+      "prev": 0,
+      "pct_change": null,
+      "label": "NEW"
+    },
+    {
+      "term": "integration",
+      "curr": 8,
+      "prev": 0,
+      "pct_change": null,
+      "label": "NEW"
+    },
+    {
+      "term": "gpu",
+      "curr": 8,
+      "prev": 0,
+      "pct_change": null,
+      "label": "NEW"
+    },
+    {
+      "term": "code",
+      "curr": 8,
+      "prev": 0,
+      "pct_change": null,
+      "label": "NEW"
+    },
+    {
+      "term": "инструменты",
+      "curr": 8,
+      "prev": 0,
+      "pct_change": null,
+      "label": "NEW"
+    },
+    {
+      "term": "tools",
+      "curr": 8,
+      "prev": 0,
+      "pct_change": null,
+      "label": "NEW"
+    },
+    {
+      "term": "ocr",
+      "curr": 7,
+      "prev": 0,
+      "pct_change": null,
+      "label": "NEW"
+    },
+    {
+      "term": "open",
+      "curr": 7,
+      "prev": 0,
+      "pct_change": null,
+      "label": "NEW"
+    },
+    {
+      "term": "intel",
+      "curr": 7,
+      "prev": 0,
+      "pct_change": null,
+      "label": "NEW"
+    }
+  ],
+  "falling": [],
+  "top_terms": [
+    {
+      "term": "llm",
+      "count": 45
+    },
+    {
+      "term": "inference",
+      "count": 22
+    },
+    {
+      "term": "model",
+      "count": 19
+    },
+    {
+      "term": "hugging",
+      "count": 18
+    },
+    {
+      "term": "face",
+      "count": 18
+    },
+    {
+      "term": "hugging face",
+      "count": 18
+    },
+    {
+      "term": "растёт",
+      "count": 17
+    },
+    {
+      "term": "optimization",
+      "count": 15
+    },
+    {
+      "term": "моделей",
+      "count": 15
+    },
+    {
+      "term": "claude",
+      "count": 15
+    },
+    {
+      "term": "models",
+      "count": 12
+    },
+    {
+      "term": "api",
+      "count": 12
+    },
+    {
+      "term": "data",
+      "count": 12
+    },
+    {
+      "term": "training",
+      "count": 12
+    },
+    {
+      "term": "mcp",
+      "count": 12
+    },
+    {
+      "term": "reasoning",
+      "count": 11
+    },
+    {
+      "term": "vision",
+      "count": 11
+    },
+    {
+      "term": "спрос",
+      "count": 11
+    },
+    {
+      "term": "evaluation",
+      "count": 10
+    },
+    {
+      "term": "модели",
+      "count": 9
+    },
+    {
+      "term": "становится",
+      "count": 9
+    },
+    {
+      "term": "learning",
+      "count": 9
+    },
+    {
+      "term": "integration",
+      "count": 8
+    },
+    {
+      "term": "gpu",
+      "count": 8
+    },
+    {
+      "term": "code",
+      "count": 8
+    },
+    {
+      "term": "инструменты",
+      "count": 8
+    },
+    {
+      "term": "tools",
+      "count": 8
+    },
+    {
+      "term": "ocr",
+      "count": 7
+    },
+    {
+      "term": "open",
+      "count": 7
+    },
+    {
+      "term": "intel",
+      "count": 7
+    }
+  ],
+  "topic_curr": {
+    "интерпретируемость агентов": 1,
+    "ocr моделирование": 1,
+    "AI в офисных приложениях": 1,
+    "ai в здравоохранении": 1,
+    "облачная инфраструктура LLM": 1,
+    "vlm локальный инференс": 1,
+    "синтетические данные, локализация AI": 1,
+    "pytorch конференции": 1,
+    "оценка code generation": 1,
+    "мобильное компьютерное зрение": 1,
+    "retrieval evaluation": 1,
+    "локальные llm оптимизация": 1,
+    "образовательные игры": 1,
+    "синтетические данные, суверенный AI": 1,
+    "мобильные трансформеры": 1
+  },
+  "topic_prev": {}
+}
