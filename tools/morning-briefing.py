@@ -4,8 +4,9 @@ morning-briefing.py — утренний брифинг для @oleg-mac
 
 Читает из agentnet:
   1. Последние market signals (что произошло на рынке)
-  2. Последние claude-ideas (что полезно мне как агенту)
-  3. Частотный анализ текущей недели
+  2. AgentNet Project intel (тренды/влияние/идеи для Проекта)
+  3. Последние claude-ideas (что полезно мне как агенту)
+  4. Частотный анализ текущей недели
 
 Запускается в начале каждой сессии Mac.
 Вывод — короткий, без лишнего. Инжектируется как контекст.
@@ -23,6 +24,7 @@ from pathlib import Path
 REPO = Path(__file__).parent.parent
 SIGNALS_FILE    = REPO / "feeds" / "market-intel" / "signals.jsonl"
 CLAUDE_IDEAS    = REPO / "feeds" / "claude-ideas" / "ideas.jsonl"
+AGENTNET_PROJ   = REPO / "feeds" / "agentnet-project" / "signals.jsonl"
 INTEL_DIR       = REPO / "feeds" / "market-intel"
 
 SHORT_MODE = "--short" in sys.argv
@@ -63,9 +65,10 @@ def fmt_direction(d: str) -> str:
 
 def main():
     now = datetime.now()
-    signals = load_recent(SIGNALS_FILE, days=3)
-    ideas   = load_recent(CLAUDE_IDEAS, days=7, limit=10)
-    freq    = load_latest_freq()
+    signals  = load_recent(SIGNALS_FILE, days=3)
+    ideas    = load_recent(CLAUDE_IDEAS, days=7, limit=10)
+    ag_proj  = load_recent(AGENTNET_PROJ, days=7, limit=20)
+    freq     = load_latest_freq()
 
     print(f"\n{'━'*55}")
     print(f"  Market Briefing — {now.strftime('%d %b %Y, %H:%M')}")
@@ -110,6 +113,42 @@ def main():
             print()
     else:
         print("\n  (нет данных — rss-collector ещё не запускался)")
+
+    # ── AgentNet Project intel ────────────────────────────────────
+    if ag_proj:
+        urgent = [s for s in ag_proj if s.get("urgency") == "now"]
+        weekly = [s for s in ag_proj if s.get("urgency") == "week"]
+        strategic = [s for s in ag_proj if s.get("urgency") == "month"]
+
+        print(f"{'━'*55}")
+        print(f"  🏗  AgentNet Project — {len(ag_proj)} сигналов за неделю")
+        print()
+
+        limit_ag = 2 if SHORT_MODE else 4
+
+        if urgent:
+            print("  ⚡ СРОЧНО:")
+            for s in urgent[:2]:
+                print(f"    {s.get('impact','')[:80]}")
+                print(f"    → {s.get('idea','')[:75]}")
+                print(f"    [{s.get('source','')}]")
+            print()
+
+        if weekly and not SHORT_MODE:
+            print("  📡 На неделе:")
+            for s in weekly[:3]:
+                print(f"    {s.get('trend','')[:80]}")
+                print(f"    → {s.get('idea','')[:75]}")
+            print()
+
+        if strategic and not SHORT_MODE:
+            print("  🔭 Тренды:")
+            for s in strategic[:limit_ag]:
+                print(f"    {s.get('trend','')[:85]}")
+            print()
+    else:
+        if not SHORT_MODE:
+            print(f"\n  (нет agentnet-project сигналов — появятся после следующего rss-collector)")
 
     # ── Частотный анализ ─────────────────────────────────────────
     if freq and not SHORT_MODE:
@@ -156,6 +195,10 @@ def main():
         if ideas:
             patterns = [i.get("pattern","") for i in ideas[:3] if i.get("pattern")]
             print(f"Agent insights available: {', '.join(patterns)}")
+    if ag_proj:
+        urgent_ideas = [s.get("idea","") for s in ag_proj if s.get("urgency") == "now" and s.get("idea")][:2]
+        if urgent_ideas:
+            print(f"AgentNet urgent: {' | '.join(urgent_ideas)}")
     print()
 
 
