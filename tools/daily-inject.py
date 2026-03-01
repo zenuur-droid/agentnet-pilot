@@ -211,12 +211,29 @@ def inject(note_path: Path):
         print(f"  [git] {e}")
 
 
+def run_proposal_agent():
+    """Запускает idea-to-proposal.py если появились новые claude-ideas."""
+    script = AGENTNET / "tools" / "idea-to-proposal.py"
+    if not script.exists():
+        return
+    try:
+        r = subprocess.run(
+            [sys.executable, str(script)],
+            capture_output=True, text=True, timeout=60
+        )
+        if r.stdout.strip():
+            print(f"[proposals] {r.stdout.strip()[:200]}")
+    except Exception as e:
+        print(f"[proposals] {e}")
+
+
 def main():
     note = today_note_path()
     if not note.exists():
         print(f"Заметка не создана ещё: {note.name} — жду")
         sys.exit(0)
     inject(note)
+    run_proposal_agent()
 
 
 if __name__ == "__main__":
