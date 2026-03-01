@@ -1,0 +1,223 @@
+#!/usr/bin/env python3
+"""
+daily-inject.py — инжектирует AI-блок в ежедневную заметку Obsidian.
+
+Запускается каждые 10 минут (LaunchAgent com.daily.inject).
+Структура блока:
+  ### 🏗 AgentNet  — тренды/влияние/идеи для Проекта
+  ### 💡 Клод      — паттерны для агента
+  ### 📬 Идеи      — личные RSS-идеи пользователя
+"""
+
+import json
+import os
+import subprocess
+import sys
+from datetime import datetime, timedelta
+from pathlib import Path
+
+VAULT        = Path.home() / "obsidian-backup"
+DAYS_DIR     = VAULT / "Дни"
+AGENTNET     = Path.home() / "agentnet-pilot"
+AG_PROJ_FILE = AGENTNET / "feeds" / "agentnet-project" / "signals.jsonl"
+CLAUDE_FILE  = AGENTNET / "feeds" / "claude-ideas" / "ideas.jsonl"
+MARKET_FILE  = AGENTNET / "feeds" / "market-intel" / "signals.jsonl"
+
+DOW_RU = {0: "пн", 1: "вт", 2: "ср", 3: "чт", 4: "пт", 5: "сб", 6: "вс"}
+
+
+def today_note_path() -> Path:
+    today = datetime.now().date()
+    dow   = DOW_RU[today.weekday()]
+    week  = today.isocalendar()[1]
+    name  = f"{today.strftime('%d.%m.%Y')}  {dow}  {week}.md"
+    return DAYS_DIR / name
+
+
+def load_recent(path: Path, days: int = 7, limit: int = 20) -> list:
+    if not path.exists():
+        return []
+    cutoff = datetime.now() - timedelta(days=days)
+    records = []
+    for line in path.read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        try:
+            r = json.loads(line)
+            ts = datetime.fromisoformat(r.get("ts", "2000-01-01T00:00:00"))
+            if ts >= cutoff:
+                records.append(r)
+        except Exception:
+            continue
+    return records[-limit:]
+
+
+def build_agentnet_section(signals: list) -> str:
+    if not signals:
+        return ("### 🏗 AgentNet\n"
+                "*(нет сигналов — появятся после следующего прогона в 06:00)*")
+
+    urgent  = [s for s in signals if s.get("urgency") == "now"]
+    weekly  = [s for s in signals if s.get("urgency") == "week"]
+    monthly = [s for s in signals if s.get("urgency") == "month"]
+
+    lines = [f"### 🏗 AgentNet — {len(signals)} сигналов"]
+
+    for s in urgent[:3]:
+        lines.append("")
+        lines.append(f"⚡ {s.get('impact', '')}")
+        idea = s.get("idea", "")
+        if idea:
+            lines.append(f"→ {idea}  *({s.get('source', '')})*")
+        else:
+            lines.append(f"*({s.get('source', '')})*")
+
+    for s in weekly[:3]:
+        lines.append("")
+        lines.append(f"📡 {s.get('trend', '')}")
+        idea = s.get("idea", "")
+        if idea:
+            lines.append(f"→ {idea}  *({s.get('source', '')})*")
+        else:
+            lines.append(f"*({s.get('source', '')})*")
+
+    for s in monthly[:2]:
+        lines.append("")
+        lines.append(f"🔭 {s.get('trend', '')}  *({s.get('source', '')})*")
+
+    return "\n".join(lines)
+
+
+def build_claude_section(ideas: list) -> str:
+    if not ideas:
+        return "### 💡 Клод\n*(нет инсайтов за неделю)*"
+
+    MAX = 7
+    cat_priority = {
+        "memory": 0, "coordination": 1, "autonomy": 2,
+        "tools": 3, "cost": 4, "reasoning": 5, "meta": 6,
+    }
+    sorted_ideas = sorted(ideas, key=lambda i: cat_priority.get(i.get("category", ""), 9))
+    shown_count = min(len(sorted_ideas), MAX)
+    lines = [f"### 💡 Клод — топ-{shown_count} из {len(sorted_ideas)} инсайтов"]
+    shown = 0
+    for idea in sorted_ideas:
+        if shown >= MAX:
+            break
+        pattern = idea.get("pattern", "")
+        insight = idea.get("insight", "")
+        cat     = idea.get("category", "")
+        lines.append("")
+        lines.append(f"**{pattern}** *({cat})*")
+        lines.append(insight)
+        shown += 1
+
+    return "\n".join(lines)
+
+
+def build_ideas_section(signals: list) -> str:
+    dir_icon = {"рост": "↑", "новое": "★", "спад": "↓", "зрелость": "→"}
+    relevant = [s for s in signals if s.get("relevant_to_oleg")]
+    if not relevant:
+        return "### 📬 Новости\n*(нет новостей за 3 дня)*"
+
+    # Сортируем по важности direction: новое > рост > зрелость > спад
+    dir_priority = {"новое": 0, "рост": 1, "зрелость": 2, "спад": 3}
+    sorted_rel = sorted(relevant, key=lambda s: dir_priority.get(s.get("direction", ""), 9))
+    lines = [f"### 📬 Новости — {len(relevant)} релевантных"]
+    shown = 0
+    for s in sorted_rel:
+        if shown >= 7:
+            break
+        icon   = dir_icon.get(s.get("direction", ""), "·")
+        topic  = s.get("topic", "")
+        signal = s.get("signal", "")
+        action = s.get("action", "")
+        src    = s.get("source", "")
+        lines.append("")
+        lines.append(f"{icon} **{topic}**  *({src})*")
+        lines.append(signal)
+        if action:
+            lines.append(f"→ {action}")
+        shown += 1
+
+    return "\n".join(lines)
+
+
+def inject(note_path: Path):
+    today  = datetime.now().date()
+    marker = f"<!-- ai-inject: {today.isoformat()} -->"
+    text   = note_path.read_text(encoding="utf-8")
+
+    if marker in text:
+        print(f"Уже инжектировано: {note_path.name}")
+        return
+
+    # Читаем данные из agentnet
+    ag_signals  = load_recent(AG_PROJ_FILE, days=7)
+    cl_ideas    = load_recent(CLAUDE_FILE,  days=7, limit=10)
+    mkt_signals = load_recent(MARKET_FILE,  days=3, limit=50)
+
+    block = "\n".join([
+        marker,
+        build_agentnet_section(ag_signals),
+        "",
+        "---",
+        "",
+        build_claude_section(cl_ideas),
+        "",
+        "---",
+        "",
+        build_ideas_section(mkt_signals),
+        "",
+    ])
+
+    # Вставляем перед первым --- (разделитель после погоды)
+    sep_idx = text.find("\n---")
+    if sep_idx != -1:
+        new_text = text[:sep_idx] + "\n\n" + block + text[sep_idx:]
+    else:
+        new_text = text.rstrip() + "\n\n" + block + "\n\n---\n"
+
+    note_path.write_text(new_text, encoding="utf-8")
+    print(f"✅ AI-блок добавлен в {note_path.name}")
+    print(f"   AgentNet: {len(ag_signals)} сигналов | "
+          f"Клод: {len(cl_ideas)} инсайтов | "
+          f"Идеи: {len([s for s in mkt_signals if s.get('relevant_to_oleg')])} новых")
+
+    # Git push (SSH ключ как в obsidian-sync.sh)
+    env = os.environ.copy()
+    env["GIT_SSH_COMMAND"] = (
+        "ssh -i /Users/user/.ssh/github_ed25519 -o StrictHostKeyChecking=no"
+    )
+    try:
+        rel = str(note_path.relative_to(VAULT))
+        subprocess.run(
+            ["git", "-C", str(VAULT), "add", rel],
+            capture_output=True, timeout=15, env=env
+        )
+        r = subprocess.run(
+            ["git", "-C", str(VAULT), "commit", "-m",
+             f"daily inject: AI-блок {today}"],
+            capture_output=True, timeout=15, env=env
+        )
+        if b"nothing to commit" not in r.stdout:
+            subprocess.run(
+                ["git", "-C", str(VAULT), "push"],
+                capture_output=True, timeout=30, env=env
+            )
+    except Exception as e:
+        print(f"  [git] {e}")
+
+
+def main():
+    note = today_note_path()
+    if not note.exists():
+        print(f"Заметка не создана ещё: {note.name} — жду")
+        sys.exit(0)
+    inject(note)
+
+
+if __name__ == "__main__":
+    main()
