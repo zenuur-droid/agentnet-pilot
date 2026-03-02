@@ -330,6 +330,23 @@ def get_smart_briefing() -> str:
     else:
         status.append(f"✅ Лог сессии: {today_str}.md")
 
+    # ── 9. Статус infra-audit ────────────────────────────────────────────────
+    audit_signals_today = [
+        s for s in signals
+        if s.get("source", "").startswith("infra-audit")
+        and s.get("created", "").startswith(today_str)
+    ]
+    if not audit_signals_today:
+        # Аудит не запускался сегодня — проверяем когда последний раз
+        all_audit = [s for s in signals if s.get("source", "").startswith("infra-audit")]
+        if all_audit:
+            last_run = max(s.get("created", "") for s in all_audit)
+            status.append(f"⚠️  infra-audit: последний запуск {last_run[:10]} (сегодня не запускался)")
+        else:
+            status.append("⚠️  infra-audit: ни разу не запускался — запусти: python3 ~/agentnet-pilot/tools/infra-audit.py")
+    else:
+        status.append(f"✅ infra-audit: запускался сегодня ({len(audit_signals_today)} сигналов)")
+
     # ── Сборка вывода ───────────────────────────────────────────────────────
     lines = [f"# Повестка — {now.strftime('%d %b %Y, %H:%M')}\n"]
 
