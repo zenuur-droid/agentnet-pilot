@@ -31,10 +31,28 @@ SIGNALS_FILE   = VAULT / "AI" / "Claude Code" / "signals.yaml"
 HYPOTHESES_FILE= VAULT / "AI" / "Claude Code" / "pending-claude-hypotheses.md"
 KNOWLEDGE_FILE = VAULT / "AI" / "Claude Code" / "pending-knowledge-updates.md"
 HANDOFF_FILE   = VAULT / "AI" / "Claude Code" / "Mac" / "handoff.md"
+KEDB_FILE      = Path.home() / "tasks" / "known-errors.yaml"
 AGENTNET       = Path.home() / "agentnet-pilot"
 AGENTNET_FILE  = AGENTNET / "feeds" / "agentnet-project" / "signals.jsonl"
 
 mcp = FastMCP("system-signals")
+
+
+def _load_kedb() -> list:
+    """Загружает KEDB (known-errors.yaml), возвращает open/monitoring P1-P2 записи."""
+    if not KEDB_FILE.exists():
+        return []
+    try:
+        data = yaml.safe_load(KEDB_FILE.read_text(encoding="utf-8"))
+        if not isinstance(data, list):
+            return []
+        return [
+            ke for ke in data
+            if ke.get("status") in ("open", "monitoring")
+            and ke.get("priority") in ("P1", "P2")
+        ]
+    except Exception:
+        return []
 
 
 def _load_signals() -> list:
@@ -330,7 +348,23 @@ def get_smart_briefing() -> str:
     else:
         status.append(f"✅ Лог сессии: {today_str}.md")
 
-    # ── 9. Статус infra-audit ────────────────────────────────────────────────
+    # ── 9. KEDB — известные открытые ошибки P1/P2 (H-009) ──────────────────
+    kedb_items = _load_kedb()
+    if kedb_items:
+        p1_items = [ke for ke in kedb_items if ke.get("priority") == "P1"]
+        p2_items = [ke for ke in kedb_items if ke.get("priority") == "P2"]
+        kedb_lines = []
+        for ke in p1_items:
+            kedb_lines.append(f"   🔴 [{ke['id']}] {ke.get('problem','')[:70]} (SLA: {ke.get('sla_resolution','')})")
+        for ke in p2_items[:3]:  # показываем max 3 P2 чтобы не перегружать
+            kedb_lines.append(f"   🟡 [{ke['id']}] {ke.get('problem','')[:70]}")
+        agenda.append((1, "🗂",
+            f"**KEDB: {len(p1_items)} P1 + {len(p2_items)} P2 известных ошибок**\n" +
+            "\n".join(kedb_lines)))
+    else:
+        status.append("✅ KEDB: нет открытых P1/P2")
+
+    # ── 10. Статус infra-audit ──────────────────────────────────────────────
     audit_signals_today = [
         s for s in signals
         if s.get("source", "").startswith("infra-audit")
