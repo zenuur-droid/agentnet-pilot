@@ -27,7 +27,8 @@ from pathlib import Path
 from mcp.server.fastmcp import FastMCP
 
 VAULT          = Path.home() / "obsidian-backup"
-SIGNALS_FILE   = VAULT / "AI" / "Claude Code" / "signals.yaml"
+# signals.yaml вне vault — Obsidian переименовывает YAML в AI/Claude Code/ (KE-005)
+SIGNALS_FILE   = Path.home() / "tasks" / "signals.yaml"
 HYPOTHESES_FILE= VAULT / "AI" / "Claude Code" / "pending-claude-hypotheses.md"
 KNOWLEDGE_FILE = VAULT / "AI" / "Claude Code" / "pending-knowledge-updates.md"
 HANDOFF_FILE   = VAULT / "AI" / "Claude Code" / "Mac" / "handoff.md"
