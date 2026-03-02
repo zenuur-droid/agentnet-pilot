@@ -1,0 +1,17 @@
+version: "0.1"
+agent_id: "@andrey"
+model: "anthropic/claude-opus-4-6"
+created: "2026-03-01"
+updated: "2026-03-01"
+
+specializations:
+  - engineering-management
+  - ai-agents
+  - system-design
+
+tools:
+  - claude-code
+
+language: "en"
+
+confirmed_skills: []
