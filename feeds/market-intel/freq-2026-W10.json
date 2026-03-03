@@ -1,53 +1,74 @@
 {
-  "generated_at": "2026-03-02T03:05:01.127768",
+  "generated_at": "2026-03-03T03:05:01.136489",
   "week": "2026-W10",
   "prev_week": "2026-W09",
-  "curr_signals_count": 63,
+  "curr_signals_count": 100,
   "prev_signals_count": 145,
   "rising": [
     {
+      "term": "open-source",
+      "curr": 24,
+      "prev": 14,
+      "pct_change": 71,
+      "label": "+71%"
+    },
+    {
+      "term": "red",
+      "curr": 16,
+      "prev": 0,
+      "pct_change": null,
+      "label": "NEW"
+    },
+    {
+      "term": "vision language",
+      "curr": 15,
+      "prev": 6,
+      "pct_change": 150,
+      "label": "+150%"
+    },
+    {
+      "term": "teaming",
+      "curr": 14,
+      "prev": 0,
+      "pct_change": null,
+      "label": "NEW"
+    },
+    {
+      "term": "red teaming",
+      "curr": 14,
+      "prev": 0,
+      "pct_change": null,
+      "label": "NEW"
+    },
+    {
+      "term": "security",
+      "curr": 13,
+      "prev": 0,
+      "pct_change": null,
+      "label": "NEW"
+    },
+    {
       "term": "language models",
-      "curr": 10,
+      "curr": 13,
       "prev": 6,
-      "pct_change": 67,
-      "label": "+67%"
+      "pct_change": 117,
+      "label": "+117%"
     },
     {
-      "term": "robotics",
-      "curr": 10,
-      "prev": 3,
-      "pct_change": 233,
-      "label": "+233%"
-    },
-    {
-      "term": "vlm",
-      "curr": 9,
+      "term": "hub",
+      "curr": 13,
       "prev": 6,
-      "pct_change": 50,
-      "label": "+50%"
+      "pct_change": 117,
+      "label": "+117%"
     }
   ],
   "falling": [
     {
       "term": "research",
-      "curr": 0,
-      "prev": 19,
-      "pct_change": -100,
-      "label": "-100%"
-    },
-    {
-      "term": "llms",
       "curr": 1,
-      "prev": 17,
-      "pct_change": -94,
-      "label": "-94%"
-    },
-    {
-      "term": "reasoning",
-      "curr": 4,
-      "prev": 37,
-      "pct_change": -89,
-      "label": "-89%"
+      "prev": 19,
+      "pct_change": -95,
+      "label": "-95%"
     },
     {
       "term": "open models",
@@ -57,32 +78,11 @@
       "label": "-88%"
     },
     {
-      "term": "agent",
-      "curr": 5,
-      "prev": 28,
-      "pct_change": -82,
-      "label": "-82%"
-    },
-    {
-      "term": "open",
-      "curr": 7,
-      "prev": 35,
-      "pct_change": -80,
-      "label": "-80%"
-    },
-    {
-      "term": "открытые",
-      "curr": 4,
-      "prev": 20,
-      "pct_change": -80,
-      "label": "-80%"
-    },
-    {
-      "term": "становится",
-      "curr": 5,
-      "prev": 24,
-      "pct_change": -79,
-      "label": "-79%"
+      "term": "llms",
+      "curr": 2,
+      "prev": 17,
+      "pct_change": -88,
+      "label": "-88%"
     },
     {
       "term": "nvidia",
@@ -92,207 +92,155 @@
       "label": "-76%"
     },
     {
-      "term": "api",
-      "curr": 6,
-      "prev": 23,
-      "pct_change": -74,
-      "label": "-74%"
+      "term": "agent",
+      "curr": 7,
+      "prev": 28,
+      "pct_change": -75,
+      "label": "-75%"
     },
     {
-      "term": "модели",
-      "curr": 8,
-      "prev": 28,
-      "pct_change": -71,
-      "label": "-71%"
+      "term": "reasoning",
+      "curr": 14,
+      "prev": 37,
+      "pct_change": -62,
+      "label": "-62%"
     },
     {
       "term": "claude",
-      "curr": 7,
+      "curr": 11,
       "prev": 24,
-      "pct_change": -71,
-      "label": "-71%"
-    },
-    {
-      "term": "рынок",
-      "curr": 6,
-      "prev": 18,
-      "pct_change": -67,
-      "label": "-67%"
-    },
-    {
-      "term": "evaluation",
-      "curr": 6,
-      "prev": 17,
-      "pct_change": -65,
-      "label": "-65%"
-    },
-    {
-      "term": "training",
-      "curr": 8,
-      "prev": 22,
-      "pct_change": -64,
-      "label": "-64%"
-    },
-    {
-      "term": "models",
-      "curr": 19,
-      "prev": 52,
-      "pct_change": -63,
-      "label": "-63%"
-    },
-    {
-      "term": "optimization",
-      "curr": 13,
-      "prev": 34,
-      "pct_change": -62,
-      "label": "-62%"
-    },
-    {
-      "term": "растёт",
-      "curr": 9,
-      "prev": 24,
-      "pct_change": -62,
-      "label": "-62%"
-    },
-    {
-      "term": "llm",
-      "curr": 53,
-      "prev": 132,
-      "pct_change": -60,
-      "label": "-60%"
-    },
-    {
-      "term": "mcp",
-      "curr": 10,
-      "prev": 25,
-      "pct_change": -60,
-      "label": "-60%"
+      "pct_change": -54,
+      "label": "-54%"
     }
   ],
   "top_terms": [
     {
       "term": "llm",
-      "count": 53
+      "count": 87
     },
     {
       "term": "inference",
-      "count": 27
+      "count": 46
     },
     {
       "term": "model",
-      "count": 24
-    },
-    {
-      "term": "hugging",
-      "count": 20
-    },
-    {
-      "term": "face",
-      "count": 20
-    },
-    {
-      "term": "hugging face",
-      "count": 20
-    },
-    {
-      "term": "models",
-      "count": 19
+      "count": 40
     },
     {
       "term": "моделей",
-      "count": 19
+      "count": 34
     },
     {
-      "term": "language",
-      "count": 15
+      "term": "hugging",
+      "count": 31
+    },
+    {
+      "term": "face",
+      "count": 31
+    },
+    {
+      "term": "hugging face",
+      "count": 31
+    },
+    {
+      "term": "models",
+      "count": 28
     },
     {
       "term": "open-source",
-      "count": 14
+      "count": 24
+    },
+    {
+      "term": "language",
+      "count": 23
     },
     {
       "term": "optimization",
-      "count": 13
-    },
-    {
-      "term": "gradio",
-      "count": 12
-    },
-    {
-      "term": "agents",
-      "count": 10
+      "count": 20
     },
     {
       "term": "vision",
-      "count": 10
+      "count": 19
     },
     {
-      "term": "language models",
-      "count": 10
-    },
-    {
-      "term": "robotics",
-      "count": 10
-    },
-    {
-      "term": "mcp",
-      "count": 10
-    },
-    {
-      "term": "растёт",
-      "count": 9
-    },
-    {
-      "term": "через",
-      "count": 9
-    },
-    {
-      "term": "vlm",
-      "count": 9
-    },
-    {
-      "term": "без",
-      "count": 9
-    },
-    {
-      "term": "learning",
-      "count": 9
-    },
-    {
-      "term": "оптимизация",
-      "count": 8
-    },
-    {
-      "term": "vision language",
-      "count": 8
+      "term": "open",
+      "count": 19
     },
     {
       "term": "модели",
-      "count": 8
+      "count": 18
+    },
+    {
+      "term": "red",
+      "count": 16
+    },
+    {
+      "term": "vision language",
+      "count": 15
+    },
+    {
+      "term": "api",
+      "count": 15
+    },
+    {
+      "term": "растёт",
+      "count": 14
+    },
+    {
+      "term": "reasoning",
+      "count": 14
+    },
+    {
+      "term": "teaming",
+      "count": 14
+    },
+    {
+      "term": "red teaming",
+      "count": 14
+    },
+    {
+      "term": "security",
+      "count": 13
+    },
+    {
+      "term": "agents",
+      "count": 13
+    },
+    {
+      "term": "language models",
+      "count": 13
     },
     {
       "term": "training",
-      "count": 8
+      "count": 13
     },
     {
-      "term": "claude",
-      "count": 7
+      "term": "learning",
+      "count": 13
+    },
+    {
+      "term": "hub",
+      "count": 13
+    },
+    {
+      "term": "mcp",
+      "count": 13
+    },
+    {
+      "term": "через",
+      "count": 12
     },
     {
       "term": "deployment",
-      "count": 7
-    },
-    {
-      "term": "становятся",
-      "count": 7
-    },
-    {
-      "term": "efficiency",
-      "count": 7
+      "count": 12
     }
   ],
   "topic_curr": {
     "mcp агенты": 2,
+    "vision language models": 2,
+    "мультимодальные языковые модели": 2,
+    "открытые модели рассуждений": 2,
+    "ai security testing": 2,
     "безопасность памяти ai": 1,
     "оценка GUI-агентов": 1,
     "оптимизация vlm inference": 1,
@@ -302,11 +250,7 @@
     "детерминированный вывод агентов": 1,
     "оптимизация обучения llm": 1,
     "on-premises AI infrastructure": 1,
-    "архитектура LLM": 1,
-    "языковые модели арабский": 1,
-    "квантизация диффузионных моделей": 1,
-    "vision language models": 1,
-    "корпоративные партнёрства ai": 1
+    "архитектура LLM": 1
   },
   "topic_prev": {
     "vision language models": 2,
