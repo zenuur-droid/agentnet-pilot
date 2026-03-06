@@ -29,7 +29,18 @@ try:
 except ImportError:
     _YAML_OK = False
 
-VAULT          = Path.home() / "obsidian-backup"
+# Vault path: Mac = ~/obsidian-backup, Linux = ~/obsidian-vault, Win = ~/obsidian
+# Проверяем по наличию папки Дни — признак рабочего worktree
+_VAULT_CANDIDATES = [
+    Path.home() / "obsidian-backup",   # Mac
+    Path.home() / "obsidian-vault",    # Linux
+    Path.home() / "obsidian",          # Laptop (Windows)
+]
+VAULT = next(
+    (p for p in _VAULT_CANDIDATES if (p / "Дни").exists()),
+    _VAULT_CANDIDATES[0]
+)
+
 DAYS_DIR       = VAULT / "Дни"
 AGENTNET       = Path.home() / "agentnet-pilot"
 AG_PROJ_FILE   = AGENTNET / "feeds" / "agentnet-project" / "signals.jsonl"
@@ -69,9 +80,11 @@ def load_recent(path: Path, days: int = 7, limit: int = 20) -> list:
     return records[-limit:]
 
 
-def build_tasks_section(machine: str = "mac") -> str | None:
-    """Читает активные задачи из индекса. Показывает просроченные и ближайшие 3 дня.
-    Пропускает секцию Выполненные."""
+def build_tasks_section() -> str | None:
+    """Читает ВСЕ активные задачи из индекса (все исполнители).
+    Группирует: просроченные → сегодня → ближайшие 3 дня.
+    Пропускает секцию Выполненные.
+    Показывает исполнителя если не 'all'."""
     if not TASKS_INDEX.exists():
         return None
 
@@ -87,22 +100,17 @@ def build_tasks_section(machine: str = "mac") -> str | None:
             continue
         if line.startswith("## Выполненные"):
             break  # дальше не читаем
-        if not in_active:
-            continue
-        if not line.startswith("- "):
+        if not in_active or not line.startswith("- "):
             continue
 
         # Формат: - YYYY-MM-DD | assignee | recurrence | [[title]]
         parts = line[2:].split("|")
         if len(parts) < 4:
             continue
-        raw_date = parts[0].strip()
-        assignee = parts[1].strip()
+        raw_date   = parts[0].strip()
+        assignee   = parts[1].strip()
         recurrence = parts[2].strip()
-        title = parts[3].strip().strip("[[").rstrip("]]")
-
-        if assignee not in (machine, "all"):
-            continue
+        title      = parts[3].strip().lstrip("[[").rstrip("]]").rstrip()
 
         try:
             import datetime as dt
@@ -110,13 +118,17 @@ def build_tasks_section(machine: str = "mac") -> str | None:
         except ValueError:
             continue
 
+        who = f"`{assignee}` " if assignee != "all" else ""
+        rec_tag = f" `{recurrence}`" if recurrence not in ("once", "none", "") else ""
+        item = (title, who, rec_tag, raw_date)
+
         delta = (today - deadline).days
         if delta > 0:
-            overdue.append((delta, title, raw_date, recurrence))
+            overdue.append((delta, item))
         elif delta == 0:
-            today_tasks.append((title, raw_date, recurrence))
+            today_tasks.append(item)
         elif delta >= -upcoming_days:
-            upcoming.append((-delta, title, raw_date, recurrence))
+            upcoming.append((-delta, item))
 
     if not overdue and not today_tasks and not upcoming:
         return None
@@ -124,17 +136,14 @@ def build_tasks_section(machine: str = "mac") -> str | None:
     total = len(overdue) + len(today_tasks) + len(upcoming)
     lines = [f"### 📅 Задачи — {total} к выполнению"]
 
-    for days, title, date, rec in sorted(overdue, reverse=True):
-        rec_tag = f" `{rec}`" if rec not in ("once", "none", "") else ""
-        lines.append(f"- [ ] **{title}**{rec_tag} ⚠️ просрочено {days}д")
+    for days, (title, who, rec_tag, _) in sorted(overdue, reverse=True):
+        lines.append(f"- [ ] {who}**{title}**{rec_tag} ⚠️ просрочено {days}д")
 
-    for title, date, rec in today_tasks:
-        rec_tag = f" `{rec}`" if rec not in ("once", "none", "") else ""
-        lines.append(f"- [ ] **{title}**{rec_tag} *(сегодня)*")
+    for title, who, rec_tag, _ in today_tasks:
+        lines.append(f"- [ ] {who}**{title}**{rec_tag} *(сегодня)*")
 
-    for days, title, date, rec in sorted(upcoming):
-        rec_tag = f" `{rec}`" if rec not in ("once", "none", "") else ""
-        lines.append(f"- [ ] **{title}**{rec_tag} *(через {days}д — {date})*")
+    for days, (title, who, rec_tag, date) in sorted(upcoming):
+        lines.append(f"- [ ] {who}**{title}**{rec_tag} *(через {days}д — {date})*")
 
     return "\n".join(lines)
 
@@ -277,7 +286,7 @@ def inject(note_path: Path):
     mkt_signals = load_recent(MARKET_FILE,  days=3, limit=50)
 
     alerts_section = build_alerts_section()
-    tasks_section  = build_tasks_section(machine="mac")
+    tasks_section  = build_tasks_section()
 
     parts = [marker]
     if alerts_section:
