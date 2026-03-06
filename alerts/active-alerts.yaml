@@ -1,0 +1,60 @@
+# SSoT активных алертов системы
+# Producer: ~/tasks/meta-analysis.py  (пишет P1/P2 по результатам анализа)
+# Consumer: ~/agentnet-pilot/tools/daily-inject.py  (читает только status: open)
+# CLI:      ~/agentnet-pilot/tools/alert-manager.py --list / --close / --watch
+
+version: 1
+alerts:
+
+  - id: vault-pollution
+    title: "Засорение 5_Люди посторонними файлами"
+    category: repeat_problem
+    severity: P1
+    level: L1
+    status: resolved
+    first_seen: "2026-02-25"
+    last_seen: "2026-03-01"
+    occurrences: 5
+    dates: ["2026-02-25", "2026-02-27", "2026-03-01"]
+    resolved_date: "2026-03-06"
+    resolved_by: "oleg (проверил вручную: 43 файла, все корректны)"
+
+  - id: api-unavailable
+    title: "Недоступность Anthropic API / туннель"
+    category: repeat_problem
+    severity: P1
+    level: L1
+    status: resolved
+    first_seen: "2026-02-25"
+    last_seen: "2026-02-26"
+    occurrences: 3
+    dates: ["2026-02-25", "2026-02-26"]
+    resolved_date: "2026-03-06"
+    resolved_by: "oleg-linux (verify: API 404=OK, amn0 UP)"
+
+  - id: git-rebase-vault
+    title: "Использование git rebase (запрещено в vault)"
+    category: repeat_problem
+    severity: P2
+    level: L1
+    status: resolved
+    first_seen: "2026-02-27"
+    last_seen: "2026-03-02"
+    occurrences: 2
+    dates: ["2026-02-27", "2026-03-02"]
+    resolved_date: "2026-03-06"
+    resolved_by: "oleg-linux (INC-2026-0227 закрыт, coммит restore sync)"
+
+  - id: files-return-after-delete
+    title: "Файлы возвращаются после удаления (git sync)"
+    category: repeat_problem
+    severity: P1
+    level: L1
+    status: watching
+    first_seen: "2026-02-25"
+    last_seen: "2026-02-25"
+    occurrences: 2
+    dates: ["2026-02-25"]
+    resolved_date: null
+    resolved_by: null
+    note: "Нет новых случаев 10+ дней. Auto-close если не повторится до 2026-03-20"

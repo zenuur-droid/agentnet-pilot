@@ -4,10 +4,15 @@ daily-inject.py — инжектирует AI-блок в ежедневную �
 
 Запускается каждые 10 минут (LaunchAgent com.daily.inject).
 Структура блока:
+  ### 🔴 Алерты    — только status: open из active-alerts.yaml (SSoT)
   ### 🏗 AgentNet  — тренды/влияние/идеи для Проекта
   ### 💡 Клод      — паттерны для агента
   ### 📬 Новости   — RSS-новости дня
   ### 📋 Предложения — готовые предложения от idea-to-proposal (чекбоксы)
+
+Алерты управляются через:
+  python3 ~/agentnet-pilot/tools/alert-manager.py --close ID --reason "..."
+  python3 ~/agentnet-pilot/tools/alert-manager.py --list
 """
 
 import json
@@ -18,6 +23,12 @@ import sys
 from datetime import datetime, timedelta
 from pathlib import Path
 
+try:
+    import yaml as _yaml
+    _YAML_OK = True
+except ImportError:
+    _YAML_OK = False
+
 VAULT          = Path.home() / "obsidian-backup"
 DAYS_DIR       = VAULT / "Дни"
 AGENTNET       = Path.home() / "agentnet-pilot"
@@ -25,6 +36,7 @@ AG_PROJ_FILE   = AGENTNET / "feeds" / "agentnet-project" / "signals.jsonl"
 CLAUDE_FILE    = AGENTNET / "feeds" / "claude-ideas" / "ideas.jsonl"
 MARKET_FILE    = AGENTNET / "feeds" / "market-intel" / "signals.jsonl"
 PENDING_HYPO   = VAULT / "AI" / "Claude Code" / "pending-claude-hypotheses.md"
+ALERTS_FILE    = AGENTNET / "alerts" / "active-alerts.yaml"
 
 DOW_RU = {0: "пн", 1: "вт", 2: "ср", 3: "чт", 4: "пт", 5: "сб", 6: "вс"}
 
@@ -54,6 +66,37 @@ def load_recent(path: Path, days: int = 7, limit: int = 20) -> list:
         except Exception:
             continue
     return records[-limit:]
+
+
+def build_alerts_section() -> str | None:
+    """Читает open-алерты из SSoT. Возвращает markdown или None если нет открытых."""
+    if not ALERTS_FILE.exists() or not _YAML_OK:
+        return None
+
+    data = _yaml.safe_load(ALERTS_FILE.read_text(encoding="utf-8")) or {}
+    open_alerts = [a for a in data.get("alerts", []) if a.get("status") == "open"]
+
+    if not open_alerts:
+        return None
+
+    icons = {"P1": "🔴", "P2": "🟠", "P3": "🟡", "P4": "⚪"}
+    lines = [f"### 🔴 Алерты — {len(open_alerts)} открытых"]
+    for a in open_alerts:
+        icon = icons.get(a.get("severity", "P2"), "🔴")
+        sid  = a.get("id", "?")
+        sev  = a.get("severity", "?")
+        lvl  = a.get("level", "")
+        title = a.get("title", "?")
+        occ  = a.get("occurrences", "?")
+        last = a.get("last_seen", "?")
+        lines.append(f"- {icon} **[{sev}]** `{sid}` {title}")
+        lines.append(f"  *{occ}× | last: {last}*")
+    lines.append("")
+    lines.append(
+        "*Закрыть: `python3 ~/agentnet-pilot/tools/alert-manager.py "
+        "--close ID --reason \"...\"`*"
+    )
+    return "\n".join(lines)
 
 
 def build_agentnet_section(signals: list) -> str:
@@ -162,8 +205,19 @@ def inject(note_path: Path):
     cl_ideas    = load_recent(CLAUDE_FILE,  days=7, limit=10)
     mkt_signals = load_recent(MARKET_FILE,  days=3, limit=50)
 
-    block = "\n".join([
-        marker,
+    alerts_section = build_alerts_section()
+
+    parts = [marker]
+    if alerts_section:
+        parts += [
+            "<!-- alerts-start -->",
+            alerts_section,
+            "<!-- alerts-end -->",
+            "",
+            "---",
+            "",
+        ]
+    parts += [
         build_agentnet_section(ag_signals),
         "",
         "---",
@@ -174,7 +228,9 @@ def inject(note_path: Path):
         "",
         build_ideas_section(mkt_signals),
         "",
-    ])
+    ]
+
+    block = "\n".join(parts)
 
     # Вставляем перед первым --- (разделитель после погоды)
     sep_idx = text.find("\n---")
