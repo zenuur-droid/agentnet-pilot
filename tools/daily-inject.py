@@ -220,24 +220,45 @@ def build_claude_section(ideas: list) -> str:
         return "### 💡 Клод\n*(нет инсайтов за неделю)*"
 
     MAX = 7
+    # Приоритет категорий: дефицитные важные — выше; cost последний (избыток)
     cat_priority = {
-        "memory": 0, "coordination": 1, "autonomy": 2,
-        "tools": 3, "cost": 4, "reasoning": 5, "meta": 6,
+        "memory": 0, "meta": 1, "autonomy": 2,
+        "coordination": 3, "reasoning": 4, "tools": 5, "cost": 6,
     }
-    sorted_ideas = sorted(ideas, key=lambda i: cat_priority.get(i.get("category", ""), 9))
-    shown_count = min(len(sorted_ideas), MAX)
-    lines = [f"### 💡 Клод — топ-{shown_count} из {len(sorted_ideas)} инсайтов"]
-    shown = 0
+
+    # Дедупликация: один инсайт на паттерн (оставляем самый свежий)
+    seen_patterns: set[str] = set()
+    deduped: list = []
+    for idea in reversed(ideas):  # reversed → свежие первыми при dedup
+        key = idea.get("pattern", "").lower().strip()[:40]
+        if key and key not in seen_patterns:
+            seen_patterns.add(key)
+            deduped.append(idea)
+    deduped.reverse()  # вернуть хронологический порядок
+
+    sorted_ideas = sorted(deduped, key=lambda i: cat_priority.get(i.get("category", ""), 9))
+
+    # Отбираем MAX инсайтов с cap 2 на категорию для разнообразия
+    MAX_PER_CAT = 2
+    cat_counts: dict[str, int] = {}
+    selected: list = []
     for idea in sorted_ideas:
-        if shown >= MAX:
+        cat = idea.get("category", "other")
+        if cat_counts.get(cat, 0) < MAX_PER_CAT:
+            selected.append(idea)
+            cat_counts[cat] = cat_counts.get(cat, 0) + 1
+        if len(selected) >= MAX:
             break
+
+    shown_count = len(selected)
+    lines = [f"### 💡 Клод — топ-{shown_count} из {len(deduped)} уникальных ({len(ideas)} всего)"]
+    for idea in selected:
         pattern = idea.get("pattern", "")
         insight = idea.get("insight", "")
         cat     = idea.get("category", "")
         lines.append("")
         lines.append(f"**{pattern}** *({cat})*")
         lines.append(insight)
-        shown += 1
 
     return "\n".join(lines)
 
@@ -282,7 +303,7 @@ def inject(note_path: Path):
 
     # Читаем данные из agentnet
     ag_signals  = load_recent(AG_PROJ_FILE, days=7)
-    cl_ideas    = load_recent(CLAUDE_FILE,  days=7, limit=10)
+    cl_ideas    = load_recent(CLAUDE_FILE,  days=7, limit=500)
     mkt_signals = load_recent(MARKET_FILE,  days=3, limit=1000)  # Много сигналов, фильтруем по relevant_to_oleg
 
     alerts_section = build_alerts_section()
