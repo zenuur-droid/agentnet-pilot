@@ -20,10 +20,11 @@ from pathlib import Path
 from mcp.server.fastmcp import FastMCP
 
 REPO         = Path(__file__).parent.parent
-MARKET_FILE  = REPO / "feeds" / "market-intel"  / "signals.jsonl"
-CLAUDE_FILE  = REPO / "feeds" / "claude-ideas"  / "ideas.jsonl"
-AGENTNET_FILE= REPO / "feeds" / "agentnet-project" / "signals.jsonl"
-INTEL_DIR    = REPO / "feeds" / "market-intel"
+MARKET_FILE      = REPO / "feeds" / "market-intel"    / "signals.jsonl"
+CLAUDE_FILE      = REPO / "feeds" / "claude-ideas"    / "ideas.jsonl"
+AGENTNET_FILE    = REPO / "feeds" / "agentnet-project" / "signals.jsonl"
+PERSONALOS_FILE  = REPO / "feeds" / "personalos"      / "signals.jsonl"
+INTEL_DIR        = REPO / "feeds" / "market-intel"
 
 mcp = FastMCP("agentnet-feeds")
 
@@ -131,6 +132,41 @@ def get_agentnet_signals(days: int = 7, urgency: str = "") -> str:
         lines.append(f"   Тренд: {r.get('trend','')}")
         lines.append(f"   Идея: {r.get('idea','')}")
         lines.append(f"   Источник: {r.get('source','')}")
+        lines.append("")
+
+    return "\n".join(lines)
+
+
+@mcp.tool()
+def get_personalos_signals(days: int = 7, domain: str = "") -> str:
+    """Сигналы PersonalOS: здоровье, longevity, quantified-self, AI+health.
+
+    Args:
+        days:   Глубина выборки (по умолчанию 7)
+        domain: Фильтр: 'longevity' | 'health-tech' | 'quantified-self' | 'ai-health' | '' (все)
+    """
+    records = _load(PERSONALOS_FILE, days, 30)
+    if not records:
+        return "Нет personalos сигналов. Появятся после следующего прогона rss-collector (06:00 UTC)."
+
+    if domain:
+        records = [r for r in records if r.get("domain") == domain]
+
+    urgency_order = {"now": 0, "week": 1, "month": 2}
+    records.sort(key=lambda r: urgency_order.get(r.get("urgency", ""), 9))
+
+    domain_icon = {"longevity": "🧬", "health-tech": "⌚", "quantified-self": "📊", "ai-health": "🤖", "biohacking": "⚡"}
+    urgency_icon = {"now": "⚡", "week": "📡", "month": "🔭"}
+
+    lines = [f"## PersonalOS — {len(records)} сигналов за {days} дн.\n"]
+    for r in records:
+        d_icon = domain_icon.get(r.get("domain", ""), "·")
+        u_icon = urgency_icon.get(r.get("urgency", ""), "·")
+        lines.append(f"{d_icon} {u_icon} **{r.get('domain', '')}** ({r.get('source', '')})")
+        lines.append(f"   {r.get('signal', '')}")
+        relevance = r.get("relevance", "")
+        if relevance:
+            lines.append(f"   → {relevance}")
         lines.append("")
 
     return "\n".join(lines)

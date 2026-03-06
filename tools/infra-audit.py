@@ -26,7 +26,8 @@ import yaml
 # ── Пути ────────────────────────────────────────────────────────────────────
 
 VAULT        = Path.home() / "obsidian-backup"
-SIGNALS_FILE = VAULT / "AI" / "Claude Code" / "signals.yaml"
+# signals.yaml вне vault — Obsidian переименовывает YAML в AI/Claude Code/ (KE-005)
+SIGNALS_FILE = Path.home() / "tasks" / "signals.yaml"
 KEDB_FILE    = Path.home() / "tasks" / "known-errors.yaml"
 
 SESSION_LOG_DIRS = [
