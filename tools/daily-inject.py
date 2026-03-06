@@ -283,7 +283,7 @@ def inject(note_path: Path):
     # Читаем данные из agentnet
     ag_signals  = load_recent(AG_PROJ_FILE, days=7)
     cl_ideas    = load_recent(CLAUDE_FILE,  days=7, limit=10)
-    mkt_signals = load_recent(MARKET_FILE,  days=3, limit=50)
+    mkt_signals = load_recent(MARKET_FILE,  days=3, limit=1000)  # Много сигналов, фильтруем по relevant_to_oleg
 
     alerts_section = build_alerts_section()
     tasks_section  = build_tasks_section()
@@ -471,6 +471,18 @@ def run_proposal_agent():
 
 
 def main():
+    # Синхронизируем agentnet-pilot перед чтением фидов
+    # Без этого Mac/Laptop читают устаревшие сигналы и блок Новости пустой
+    try:
+        r = subprocess.run(
+            ["git", "-C", str(AGENTNET), "pull", "--ff-only", "-q"],
+            capture_output=True, text=True, timeout=15
+        )
+        if r.returncode != 0:
+            print(f"[agentnet pull] warn: {r.stderr.strip()}")
+    except Exception as e:
+        print(f"[agentnet pull] skip: {e}")
+
     note = today_note_path()
     if not note.exists():
         print(f"Заметка не создана ещё: {note.name} — жду")
