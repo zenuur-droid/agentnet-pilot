@@ -37,6 +37,7 @@ CLAUDE_FILE    = AGENTNET / "feeds" / "claude-ideas" / "ideas.jsonl"
 MARKET_FILE    = AGENTNET / "feeds" / "market-intel" / "signals.jsonl"
 PENDING_HYPO   = VAULT / "AI" / "Claude Code" / "pending-claude-hypotheses.md"
 ALERTS_FILE    = AGENTNET / "alerts" / "active-alerts.yaml"
+TASKS_INDEX    = VAULT / "1_Задачи" / "Claude Code задачи.md"
 
 DOW_RU = {0: "пн", 1: "вт", 2: "ср", 3: "чт", 4: "пт", 5: "сб", 6: "вс"}
 
@@ -66,6 +67,76 @@ def load_recent(path: Path, days: int = 7, limit: int = 20) -> list:
         except Exception:
             continue
     return records[-limit:]
+
+
+def build_tasks_section(machine: str = "mac") -> str | None:
+    """Читает активные задачи из индекса. Показывает просроченные и ближайшие 3 дня.
+    Пропускает секцию Выполненные."""
+    if not TASKS_INDEX.exists():
+        return None
+
+    today = datetime.now().date()
+    upcoming_days = 3
+
+    overdue, today_tasks, upcoming = [], [], []
+
+    in_active = False
+    for line in TASKS_INDEX.read_text(encoding="utf-8").splitlines():
+        if line.startswith("## Активные"):
+            in_active = True
+            continue
+        if line.startswith("## Выполненные"):
+            break  # дальше не читаем
+        if not in_active:
+            continue
+        if not line.startswith("- "):
+            continue
+
+        # Формат: - YYYY-MM-DD | assignee | recurrence | [[title]]
+        parts = line[2:].split("|")
+        if len(parts) < 4:
+            continue
+        raw_date = parts[0].strip()
+        assignee = parts[1].strip()
+        recurrence = parts[2].strip()
+        title = parts[3].strip().strip("[[").rstrip("]]")
+
+        if assignee not in (machine, "all"):
+            continue
+
+        try:
+            import datetime as dt
+            deadline = dt.date.fromisoformat(raw_date)
+        except ValueError:
+            continue
+
+        delta = (today - deadline).days
+        if delta > 0:
+            overdue.append((delta, title, raw_date, recurrence))
+        elif delta == 0:
+            today_tasks.append((title, raw_date, recurrence))
+        elif delta >= -upcoming_days:
+            upcoming.append((-delta, title, raw_date, recurrence))
+
+    if not overdue and not today_tasks and not upcoming:
+        return None
+
+    total = len(overdue) + len(today_tasks) + len(upcoming)
+    lines = [f"### 📅 Задачи — {total} к выполнению"]
+
+    for days, title, date, rec in sorted(overdue, reverse=True):
+        rec_tag = f" `{rec}`" if rec not in ("once", "none", "") else ""
+        lines.append(f"- [ ] **{title}**{rec_tag} ⚠️ просрочено {days}д")
+
+    for title, date, rec in today_tasks:
+        rec_tag = f" `{rec}`" if rec not in ("once", "none", "") else ""
+        lines.append(f"- [ ] **{title}**{rec_tag} *(сегодня)*")
+
+    for days, title, date, rec in sorted(upcoming):
+        rec_tag = f" `{rec}`" if rec not in ("once", "none", "") else ""
+        lines.append(f"- [ ] **{title}**{rec_tag} *(через {days}д — {date})*")
+
+    return "\n".join(lines)
 
 
 def build_alerts_section() -> str | None:
@@ -206,6 +277,7 @@ def inject(note_path: Path):
     mkt_signals = load_recent(MARKET_FILE,  days=3, limit=50)
 
     alerts_section = build_alerts_section()
+    tasks_section  = build_tasks_section(machine="mac")
 
     parts = [marker]
     if alerts_section:
@@ -213,6 +285,13 @@ def inject(note_path: Path):
             "<!-- alerts-start -->",
             alerts_section,
             "<!-- alerts-end -->",
+            "",
+            "---",
+            "",
+        ]
+    if tasks_section:
+        parts += [
+            tasks_section,
             "",
             "---",
             "",
