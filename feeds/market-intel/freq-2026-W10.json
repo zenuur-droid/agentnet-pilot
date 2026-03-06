@@ -1,244 +1,253 @@
 {
-  "generated_at": "2026-03-05T03:05:01.742489",
+  "generated_at": "2026-03-06T03:05:01.141564",
   "week": "2026-W10",
   "prev_week": "2026-W09",
-  "curr_signals_count": 100,
+  "curr_signals_count": 153,
   "prev_signals_count": 145,
   "rising": [
     {
-      "term": "open-source",
-      "curr": 24,
-      "prev": 14,
-      "pct_change": 71,
-      "label": "+71%"
+      "term": "model",
+      "curr": 68,
+      "prev": 37,
+      "pct_change": 84,
+      "label": "+84%"
     },
     {
-      "term": "red",
-      "curr": 16,
-      "prev": 0,
-      "pct_change": null,
-      "label": "NEW"
+      "term": "language",
+      "curr": 42,
+      "prev": 17,
+      "pct_change": 147,
+      "label": "+147%"
+    },
+    {
+      "term": "vision",
+      "curr": 33,
+      "prev": 16,
+      "pct_change": 106,
+      "label": "+106%"
+    },
+    {
+      "term": "open-source",
+      "curr": 33,
+      "prev": 14,
+      "pct_change": 136,
+      "label": "+136%"
     },
     {
       "term": "vision language",
-      "curr": 15,
+      "curr": 24,
       "prev": 6,
-      "pct_change": 150,
-      "label": "+150%"
+      "pct_change": 300,
+      "label": "+300%"
     },
     {
-      "term": "teaming",
-      "curr": 14,
-      "prev": 0,
-      "pct_change": null,
-      "label": "NEW"
-    },
-    {
-      "term": "red teaming",
-      "curr": 14,
-      "prev": 0,
-      "pct_change": null,
-      "label": "NEW"
-    },
-    {
-      "term": "security",
-      "curr": 13,
-      "prev": 0,
-      "pct_change": null,
-      "label": "NEW"
-    },
-    {
-      "term": "language models",
-      "curr": 13,
-      "prev": 6,
-      "pct_change": 117,
-      "label": "+117%"
+      "term": "generation",
+      "curr": 23,
+      "prev": 9,
+      "pct_change": 156,
+      "label": "+156%"
     },
     {
       "term": "hub",
-      "curr": 13,
+      "curr": 21,
       "prev": 6,
-      "pct_change": 117,
-      "label": "+117%"
+      "pct_change": 250,
+      "label": "+250%"
+    },
+    {
+      "term": "language model",
+      "curr": 19,
+      "prev": 8,
+      "pct_change": 138,
+      "label": "+138%"
+    },
+    {
+      "term": "language models",
+      "curr": 18,
+      "prev": 6,
+      "pct_change": 200,
+      "label": "+200%"
+    },
+    {
+      "term": "source",
+      "curr": 18,
+      "prev": 10,
+      "pct_change": 80,
+      "label": "+80%"
+    },
+    {
+      "term": "open source",
+      "curr": 18,
+      "prev": 10,
+      "pct_change": 80,
+      "label": "+80%"
     }
   ],
   "falling": [
     {
       "term": "research",
-      "curr": 1,
+      "curr": 3,
       "prev": 19,
-      "pct_change": -95,
-      "label": "-95%"
-    },
-    {
-      "term": "open models",
-      "curr": 2,
-      "prev": 17,
-      "pct_change": -88,
-      "label": "-88%"
-    },
-    {
-      "term": "llms",
-      "curr": 2,
-      "prev": 17,
-      "pct_change": -88,
-      "label": "-88%"
-    },
-    {
-      "term": "nvidia",
-      "curr": 4,
-      "prev": 17,
-      "pct_change": -76,
-      "label": "-76%"
+      "pct_change": -84,
+      "label": "-84%"
     },
     {
       "term": "agent",
-      "curr": 7,
+      "curr": 9,
       "prev": 28,
-      "pct_change": -75,
-      "label": "-75%"
+      "pct_change": -68,
+      "label": "-68%"
     },
     {
-      "term": "reasoning",
-      "curr": 14,
-      "prev": 37,
-      "pct_change": -62,
-      "label": "-62%"
+      "term": "open models",
+      "curr": 6,
+      "prev": 17,
+      "pct_change": -65,
+      "label": "-65%"
     },
     {
-      "term": "claude",
-      "curr": 11,
-      "prev": 24,
-      "pct_change": -54,
-      "label": "-54%"
+      "term": "llms",
+      "curr": 6,
+      "prev": 17,
+      "pct_change": -65,
+      "label": "-65%"
+    },
+    {
+      "term": "nvidia",
+      "curr": 7,
+      "prev": 17,
+      "pct_change": -59,
+      "label": "-59%"
     }
   ],
   "top_terms": [
     {
       "term": "llm",
-      "count": 87
-    },
-    {
-      "term": "inference",
-      "count": 46
+      "count": 130
     },
     {
       "term": "model",
-      "count": 40
+      "count": 68
     },
     {
-      "term": "моделей",
-      "count": 34
-    },
-    {
-      "term": "hugging",
-      "count": 31
-    },
-    {
-      "term": "face",
-      "count": 31
-    },
-    {
-      "term": "hugging face",
-      "count": 31
+      "term": "inference",
+      "count": 61
     },
     {
       "term": "models",
-      "count": 28
+      "count": 55
     },
     {
-      "term": "open-source",
-      "count": 24
+      "term": "hugging",
+      "count": 50
+    },
+    {
+      "term": "face",
+      "count": 50
+    },
+    {
+      "term": "hugging face",
+      "count": 50
+    },
+    {
+      "term": "моделей",
+      "count": 49
     },
     {
       "term": "language",
-      "count": 23
-    },
-    {
-      "term": "optimization",
-      "count": 20
-    },
-    {
-      "term": "vision",
-      "count": 19
+      "count": 42
     },
     {
       "term": "open",
-      "count": 19
+      "count": 40
+    },
+    {
+      "term": "optimization",
+      "count": 37
+    },
+    {
+      "term": "vision",
+      "count": 33
+    },
+    {
+      "term": "open-source",
+      "count": 33
     },
     {
       "term": "модели",
-      "count": 18
-    },
-    {
-      "term": "red",
-      "count": 16
+      "count": 28
     },
     {
       "term": "vision language",
-      "count": 15
+      "count": 24
     },
     {
-      "term": "api",
-      "count": 15
-    },
-    {
-      "term": "растёт",
-      "count": 14
+      "term": "generation",
+      "count": 23
     },
     {
       "term": "reasoning",
-      "count": 14
-    },
-    {
-      "term": "teaming",
-      "count": 14
-    },
-    {
-      "term": "red teaming",
-      "count": 14
-    },
-    {
-      "term": "security",
-      "count": 13
-    },
-    {
-      "term": "agents",
-      "count": 13
-    },
-    {
-      "term": "language models",
-      "count": 13
-    },
-    {
-      "term": "training",
-      "count": 13
-    },
-    {
-      "term": "learning",
-      "count": 13
+      "count": 22
     },
     {
       "term": "hub",
-      "count": 13
+      "count": 21
     },
     {
-      "term": "mcp",
-      "count": 13
+      "term": "рынок",
+      "count": 21
     },
     {
-      "term": "через",
-      "count": 12
+      "term": "agents",
+      "count": 19
     },
     {
-      "term": "deployment",
-      "count": 12
+      "term": "training",
+      "count": 19
+    },
+    {
+      "term": "language model",
+      "count": 19
+    },
+    {
+      "term": "evaluation",
+      "count": 18
+    },
+    {
+      "term": "language models",
+      "count": 18
+    },
+    {
+      "term": "fine-tuning",
+      "count": 18
+    },
+    {
+      "term": "source",
+      "count": 18
+    },
+    {
+      "term": "open source",
+      "count": 18
+    },
+    {
+      "term": "api",
+      "count": 18
+    },
+    {
+      "term": "claude",
+      "count": 17
+    },
+    {
+      "term": "растёт",
+      "count": 17
     }
   ],
   "topic_curr": {
+    "vision language models": 3,
     "mcp агенты": 2,
-    "vision language models": 2,
     "мультимодальные языковые модели": 2,
+    "оптимизация инференса llm": 2,
+    "открытые llm модели": 2,
     "открытые модели рассуждений": 2,
     "ai security testing": 2,
     "безопасность памяти ai": 1,
@@ -248,9 +257,7 @@
     "робо-视觉-язык модели": 1,
     "оптимизация llm на gpu": 1,
     "детерминированный вывод агентов": 1,
-    "оптимизация обучения llm": 1,
-    "on-premises AI infrastructure": 1,
-    "архитектура LLM": 1
+    "оптимизация обучения llm": 1
   },
   "topic_prev": {
     "vision language models": 2,
