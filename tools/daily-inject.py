@@ -326,6 +326,14 @@ def inject(note_path: Path):
             "---",
             "",
         ]
+    time_section = build_time_analysis_section()
+    if time_section:
+        parts += [
+            time_section,
+            "",
+            "---",
+            "",
+        ]
     parts += [
         build_agentnet_section(ag_signals),
         "",
@@ -473,6 +481,74 @@ def inject_proposals(note_path: Path):
 
 def proposals_count(section: str) -> list:
     return re.findall(r"^- \[ \]", section, flags=re.MULTILINE)
+
+
+TIME_REPORT = Path.home() / "AI/tools/time-analyst/latest-report.json"
+TARGETS = {
+    "ПРОЕКТ":        {"min": 50, "op": ">="},
+    "ИНФРАСТРУКТУРА":{"max": 15, "op": "<="},
+    "DEBUGGING":     {"max": 10, "op": "<="},
+    "КЛОД_РАЗВИТИЕ": {"max": 20, "op": "<="},
+    "УПРАВЛЕНИЕ":    {"max": 10, "op": "<="},
+}
+
+
+def build_time_analysis_section() -> str | None:
+    """Читает latest-report.json и формирует markdown-блок анализа времени."""
+    if not TIME_REPORT.exists():
+        return None
+    try:
+        data = json.loads(TIME_REPORT.read_text(encoding="utf-8"))
+    except Exception:
+        return None
+    # Проверяем свежесть (< 36 часов)
+    try:
+        gen = datetime.fromisoformat(data.get("generated", ""))
+        if (datetime.now() - gen).total_seconds() > 36 * 3600:
+            return None
+    except Exception:
+        pass
+
+    results = data.get("sessions", [])
+    days = data.get("days", 7)
+    total_min = sum(r.get("dur_min", 0) for r in results)
+    total_cost = sum(r.get("cost", 0.0) for r in results)
+
+    if not total_min:
+        return None
+
+    # Группируем по категориям
+    by_cat: dict[str, int] = {}
+    for r in results:
+        cat = r.get("cls", {}).get("category", "НЕИЗВЕСТНО")
+        by_cat[cat] = by_cat.get(cat, 0) + r.get("dur_min", 0)
+
+    lines = [f"### 📊 Анализ времени ({days} дней)", ""]
+    lines.append("| Категория | % | Цель | |")
+    lines.append("|---|---|---|---|")
+    for cat, mins in sorted(by_cat.items(), key=lambda x: -x[1]):
+        pct = mins / total_min * 100 if total_min else 0
+        t = TARGETS.get(cat, {})
+        if "min" in t:
+            ok = pct >= t["min"]
+            target_str = f"≥{t['min']}%"
+        elif "max" in t:
+            ok = pct <= t["max"]
+            target_str = f"≤{t['max']}%"
+        else:
+            ok = True
+            target_str = "—"
+        status = "✅" if ok else "🔴"
+        lines.append(f"| {cat} | {pct:.0f}% | {target_str} | {status} |")
+
+    waste_min = sum(
+        r.get("dur_min", 0)
+        for r in results
+        if r.get("cls", {}).get("waste_flag")
+    )
+    waste_str = f" | ⚠️ потеряно {waste_min} мин" if waste_min else ""
+    lines.append(f"\n**Итого**: {total_min // 60}ч {total_min % 60}м | ${total_cost:.2f}{waste_str}")
+    return "\n".join(lines)
 
 
 def run_proposal_agent():
