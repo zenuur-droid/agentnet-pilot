@@ -513,6 +513,30 @@ def patch_empty_news(note_path: Path):
     print(f"✅ [patch] Новости обновлены: {len(relevant)} сигналов")
 
 
+def patch_stale_tasks(note_path: Path):
+    """Если маркер уже стоит, но задачи устарели — перегенерировать блок.
+    Mac инжектирует с индексом задач момента инжекта. Если задачи закрылись позже
+    (или Linux обновил индекс) — блок в заметке врёт. Каждые 10 мин Linux проверяет.
+    Запускается каждый раз независимо от маркера."""
+    text = note_path.read_text(encoding="utf-8")
+    # Ищем существующий блок задач
+    m = re.search(r"(### 📅 Задачи[^\n]*\n(?:.*\n)*?)(?=\n---|\Z)", text)
+    if not m:
+        return  # Блока задач нет — inject сам разберётся
+
+    current_block = m.group(1).rstrip()
+    fresh_block = build_tasks_section()
+    if fresh_block is None:
+        fresh_block = ""
+
+    if fresh_block.rstrip() == current_block:
+        return  # Актуально, не трогаем
+
+    new_text = text[:m.start()] + fresh_block + text[m.end():]
+    note_path.write_text(new_text, encoding="utf-8")
+    print(f"✅ [patch] Задачи обновлены")
+
+
 def main():
     # Синхронизируем agentnet-pilot перед чтением фидов
     # Без этого Mac/Laptop читают устаревшие сигналы и блок Новости пустой
@@ -532,6 +556,7 @@ def main():
         sys.exit(0)
     inject(note)
     patch_empty_news(note)   # Патч пустых Новостей (Mac мог заинжектировать раньше)
+    patch_stale_tasks(note)  # Патч устаревших Задач (Mac мог заинжектировать раньше)
     run_proposal_agent()
     inject_proposals(note)
 
