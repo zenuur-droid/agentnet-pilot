@@ -491,6 +491,28 @@ def run_proposal_agent():
         print(f"[proposals] {e}")
 
 
+def patch_empty_news(note_path: Path):
+    """Если маркер уже стоит, но Новости пусты — заменить секцию.
+    Нужно потому что Mac может заинжектировать раньше Linux и получить пустые
+    Новости (signals живут на Linux, у Mac нет свежих данных).
+    Запускается каждый раз независимо от маркера."""
+    EMPTY_MARKER = "*(нет новостей за 3 дня)*"
+    text = note_path.read_text(encoding="utf-8")
+    if EMPTY_MARKER not in text:
+        return  # Новости уже заполнены
+
+    mkt_signals = load_recent(MARKET_FILE, days=3, limit=1000)
+    relevant = [s for s in mkt_signals if s.get("relevant_to_oleg")]
+    if not relevant:
+        return  # Данных нет и у нас — ничего не делаем
+
+    new_section = build_ideas_section(mkt_signals)
+    old_section = f"### 📬 Новости\n{EMPTY_MARKER}"
+    new_text = text.replace(old_section, new_section)
+    note_path.write_text(new_text, encoding="utf-8")
+    print(f"✅ [patch] Новости обновлены: {len(relevant)} сигналов")
+
+
 def main():
     # Синхронизируем agentnet-pilot перед чтением фидов
     # Без этого Mac/Laptop читают устаревшие сигналы и блок Новости пустой
@@ -509,6 +531,7 @@ def main():
         print(f"Заметка не создана ещё: {note.name} — жду")
         sys.exit(0)
     inject(note)
+    patch_empty_news(note)   # Патч пустых Новостей (Mac мог заинжектировать раньше)
     run_proposal_agent()
     inject_proposals(note)
 
