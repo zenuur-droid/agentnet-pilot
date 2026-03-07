@@ -1,0 +1,25 @@
+{
+  "reviewed_at": "2026-03-07T16:50:00",
+  "source": "https://github.com/affaan-m/everything-claude-code",
+  "review_notes": "Первый обзор. Реализовали на его основе: hooks (pre-compact, session-end, cost-tracker, session-start, suggest-compact).",
+  "insights": [
+    {
+      "title": "Hooks как основа автономности",
+      "what": "everything-claude-code предлагает использовать lifecycle hooks (PreCompact, Stop, SessionStart) для автоматической персистенции контекста без ручного вмешательства.",
+      "why": "Мы это уже реализовали (KE-007). Следующий шаг — PostToolUse hook для логирования какие инструменты используются чаще всего.",
+      "priority": "P2"
+    },
+    {
+      "title": "Memory как живой документ, не архив",
+      "what": "Рекомендация: MEMORY.md должен содержать только то что актуально СЕГОДНЯ. Всё остальное — в topic-файлы. Аудит раз в месяц.",
+      "why": "Наш MEMORY.md уже близко к 150 строкам (лимит). Нужен регулярный pruning — вынести детали в api-connection.md, amnezia-tailscale-fix.md.",
+      "priority": "P2"
+    },
+    {
+      "title": "Agent identity через ORCHESTRATOR pattern",
+      "what": "Паттерн: каждый агент при старте загружает идентичность из файла, а не держит её в системном промпте. Это позволяет менять роль агента без рестарта.",
+      "why": "У нас уже есть ORCHESTRATOR.md + SHARED-MEMORY.md. Можно добавить machine-specific identity files для Linux/Mac специализации.",
+      "priority": "P3"
+    }
+  ]
+}

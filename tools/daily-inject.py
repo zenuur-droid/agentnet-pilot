@@ -49,6 +49,7 @@ MARKET_FILE    = AGENTNET / "feeds" / "market-intel" / "signals.jsonl"
 PENDING_HYPO   = VAULT / "AI" / "Claude Code" / "pending-claude-hypotheses.md"
 ALERTS_FILE    = AGENTNET / "alerts" / "active-alerts.yaml"
 TASKS_INDEX    = VAULT / "1_Задачи" / "Claude Code задачи.md"
+ECC_INSIGHTS   = AGENTNET / "feeds" / "ecc-insights" / "latest.json"
 
 DOW_RU = {0: "пн", 1: "вт", 2: "ср", 3: "чт", 4: "пт", 5: "сб", 6: "вс"}
 
@@ -292,6 +293,52 @@ def build_ideas_section(signals: list) -> str:
     return "\n".join(lines)
 
 
+def build_ecc_insights_section() -> str | None:
+    """Читает ~/agentnet-pilot/feeds/ecc-insights/latest.json.
+    Показывает инсайты из последнего обзора everything-claude-code.
+    Секция видна 35 дней после обзора — потом исчезает до следующего."""
+    if not ECC_INSIGHTS.exists():
+        return None
+    try:
+        data = json.loads(ECC_INSIGHTS.read_text(encoding="utf-8"))
+    except Exception:
+        return None
+
+    try:
+        reviewed = datetime.fromisoformat(data.get("reviewed_at", ""))
+        if (datetime.now() - reviewed).days > 35:
+            return None  # Старый обзор — ждём следующего
+    except Exception:
+        return None
+
+    insights = data.get("insights", [])
+    if not insights:
+        return None
+
+    source = data.get("source", "")
+    review_date = reviewed.strftime("%Y-%m-%d")
+    notes = data.get("review_notes", "")
+
+    lines = [f"### 🔭 ECC Инсайты — обзор {review_date}"]
+    if notes:
+        lines.append(f"*{notes}*")
+    lines.append(f"*Источник: {source}*")
+    lines.append("")
+
+    for ins in insights:
+        title = ins.get("title", "")
+        what  = ins.get("what", "")
+        why   = ins.get("why", "")
+        prio  = ins.get("priority", "")
+        p_tag = f" `{prio}`" if prio else ""
+        lines.append(f"**{title}**{p_tag}")
+        lines.append(f"→ *Что*: {what}")
+        lines.append(f"→ *Зачем*: {why}")
+        lines.append("")
+
+    return "\n".join(lines)
+
+
 def inject(note_path: Path):
     today  = datetime.now().date()
     marker = f"<!-- ai-inject: {today.isoformat()} -->"
@@ -306,8 +353,9 @@ def inject(note_path: Path):
     cl_ideas    = load_recent(CLAUDE_FILE,  days=7, limit=500)
     mkt_signals = load_recent(MARKET_FILE,  days=3, limit=1000)  # Много сигналов, фильтруем по relevant_to_oleg
 
-    alerts_section = build_alerts_section()
-    tasks_section  = build_tasks_section()
+    alerts_section  = build_alerts_section()
+    tasks_section   = build_tasks_section()
+    ecc_section     = build_ecc_insights_section()
 
     parts = [marker]
     if alerts_section:
@@ -323,6 +371,12 @@ def inject(note_path: Path):
         parts += [
             tasks_section,
             "",
+            "---",
+            "",
+        ]
+    if ecc_section:
+        parts += [
+            ecc_section,
             "---",
             "",
         ]
