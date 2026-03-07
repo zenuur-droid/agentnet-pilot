@@ -1,263 +1,368 @@
 {
-  "generated_at": "2026-03-06T03:05:01.141564",
+  "generated_at": "2026-03-07T03:05:01.890087",
   "week": "2026-W10",
   "prev_week": "2026-W09",
-  "curr_signals_count": 153,
+  "curr_signals_count": 578,
   "prev_signals_count": 145,
   "rising": [
     {
+      "term": "llm",
+      "curr": 274,
+      "prev": 132,
+      "pct_change": 108,
+      "label": "+108%"
+    },
+    {
+      "term": "models",
+      "curr": 101,
+      "prev": 52,
+      "pct_change": 94,
+      "label": "+94%"
+    },
+    {
+      "term": "inference",
+      "curr": 101,
+      "prev": 50,
+      "pct_change": 102,
+      "label": "+102%"
+    },
+    {
       "term": "model",
-      "curr": 68,
+      "curr": 101,
       "prev": 37,
-      "pct_change": 84,
-      "label": "+84%"
+      "pct_change": 173,
+      "label": "+173%"
+    },
+    {
+      "term": "hugging",
+      "curr": 95,
+      "prev": 36,
+      "pct_change": 164,
+      "label": "+164%"
+    },
+    {
+      "term": "face",
+      "curr": 95,
+      "prev": 36,
+      "pct_change": 164,
+      "label": "+164%"
+    },
+    {
+      "term": "hugging face",
+      "curr": 95,
+      "prev": 36,
+      "pct_change": 164,
+      "label": "+164%"
+    },
+    {
+      "term": "моделей",
+      "curr": 88,
+      "prev": 38,
+      "pct_change": 132,
+      "label": "+132%"
+    },
+    {
+      "term": "рынок",
+      "curr": 77,
+      "prev": 18,
+      "pct_change": 328,
+      "label": "+328%"
+    },
+    {
+      "term": "без",
+      "curr": 73,
+      "prev": 17,
+      "pct_change": 329,
+      "label": "+329%"
     },
     {
       "term": "language",
-      "curr": 42,
+      "curr": 72,
       "prev": 17,
-      "pct_change": 147,
-      "label": "+147%"
+      "pct_change": 324,
+      "label": "+324%"
     },
     {
-      "term": "vision",
-      "curr": 33,
+      "term": "data",
+      "curr": 70,
       "prev": 16,
-      "pct_change": 106,
-      "label": "+106%"
+      "pct_change": 338,
+      "label": "+338%"
     },
     {
-      "term": "open-source",
-      "curr": 33,
-      "prev": 14,
-      "pct_change": 136,
-      "label": "+136%"
+      "term": "optimization",
+      "curr": 68,
+      "prev": 34,
+      "pct_change": 100,
+      "label": "+100%"
     },
     {
-      "term": "vision language",
-      "curr": 24,
-      "prev": 6,
-      "pct_change": 300,
-      "label": "+300%"
+      "term": "растёт",
+      "curr": 65,
+      "prev": 24,
+      "pct_change": 171,
+      "label": "+171%"
+    },
+    {
+      "term": "health",
+      "curr": 62,
+      "prev": 1,
+      "pct_change": 6100,
+      "label": "+6100%"
+    },
+    {
+      "term": "longevity",
+      "curr": 60,
+      "prev": 0,
+      "pct_change": null,
+      "label": "NEW"
+    },
+    {
+      "term": "модели",
+      "curr": 59,
+      "prev": 28,
+      "pct_change": 111,
+      "label": "+111%"
     },
     {
       "term": "generation",
-      "curr": 23,
+      "curr": 57,
       "prev": 9,
-      "pct_change": 156,
-      "label": "+156%"
+      "pct_change": 533,
+      "label": "+533%"
     },
     {
-      "term": "hub",
-      "curr": 21,
-      "prev": 6,
-      "pct_change": 250,
-      "label": "+250%"
+      "term": "сигнализирует",
+      "curr": 56,
+      "prev": 7,
+      "pct_change": 700,
+      "label": "+700%"
     },
     {
-      "term": "language model",
-      "curr": 19,
-      "prev": 8,
-      "pct_change": 138,
-      "label": "+138%"
+      "term": "claude",
+      "curr": 55,
+      "prev": 24,
+      "pct_change": 129,
+      "label": "+129%"
     },
     {
-      "term": "language models",
-      "curr": 18,
-      "prev": 6,
-      "pct_change": 200,
-      "label": "+200%"
+      "term": "сигнализируя",
+      "curr": 55,
+      "prev": 12,
+      "pct_change": 358,
+      "label": "+358%"
     },
     {
-      "term": "source",
-      "curr": 18,
+      "term": "open",
+      "curr": 54,
+      "prev": 35,
+      "pct_change": 54,
+      "label": "+54%"
+    },
+    {
+      "term": "code",
+      "curr": 51,
+      "prev": 12,
+      "pct_change": 325,
+      "label": "+325%"
+    },
+    {
+      "term": "через",
+      "curr": 48,
       "prev": 10,
-      "pct_change": 80,
-      "label": "+80%"
+      "pct_change": 380,
+      "label": "+380%"
     },
     {
-      "term": "open source",
-      "curr": 18,
-      "prev": 10,
-      "pct_change": 80,
-      "label": "+80%"
+      "term": "learning",
+      "curr": 46,
+      "prev": 16,
+      "pct_change": 188,
+      "label": "+188%"
+    },
+    {
+      "term": "training",
+      "curr": 45,
+      "prev": 22,
+      "pct_change": 105,
+      "label": "+105%"
+    },
+    {
+      "term": "open-source",
+      "curr": 44,
+      "prev": 14,
+      "pct_change": 214,
+      "label": "+214%"
+    },
+    {
+      "term": "vision",
+      "curr": 42,
+      "prev": 16,
+      "pct_change": 162,
+      "label": "+162%"
+    },
+    {
+      "term": "api",
+      "curr": 41,
+      "prev": 23,
+      "pct_change": 78,
+      "label": "+78%"
     }
   ],
   "falling": [
     {
-      "term": "research",
-      "curr": 3,
-      "prev": 19,
-      "pct_change": -84,
-      "label": "-84%"
-    },
-    {
-      "term": "agent",
-      "curr": 9,
-      "prev": 28,
-      "pct_change": -68,
-      "label": "-68%"
-    },
-    {
       "term": "open models",
-      "curr": 6,
+      "curr": 8,
       "prev": 17,
-      "pct_change": -65,
-      "label": "-65%"
+      "pct_change": -53,
+      "label": "-53%"
     },
     {
       "term": "llms",
-      "curr": 6,
+      "curr": 8,
       "prev": 17,
-      "pct_change": -65,
-      "label": "-65%"
-    },
-    {
-      "term": "nvidia",
-      "curr": 7,
-      "prev": 17,
-      "pct_change": -59,
-      "label": "-59%"
+      "pct_change": -53,
+      "label": "-53%"
     }
   ],
   "top_terms": [
     {
       "term": "llm",
-      "count": 130
-    },
-    {
-      "term": "model",
-      "count": 68
-    },
-    {
-      "term": "inference",
-      "count": 61
+      "count": 274
     },
     {
       "term": "models",
-      "count": 55
+      "count": 101
+    },
+    {
+      "term": "inference",
+      "count": 101
+    },
+    {
+      "term": "model",
+      "count": 101
     },
     {
       "term": "hugging",
-      "count": 50
+      "count": 95
     },
     {
       "term": "face",
-      "count": 50
+      "count": 95
     },
     {
       "term": "hugging face",
-      "count": 50
+      "count": 95
     },
     {
       "term": "моделей",
-      "count": 49
-    },
-    {
-      "term": "language",
-      "count": 42
-    },
-    {
-      "term": "open",
-      "count": 40
-    },
-    {
-      "term": "optimization",
-      "count": 37
-    },
-    {
-      "term": "vision",
-      "count": 33
-    },
-    {
-      "term": "open-source",
-      "count": 33
-    },
-    {
-      "term": "модели",
-      "count": 28
-    },
-    {
-      "term": "vision language",
-      "count": 24
-    },
-    {
-      "term": "generation",
-      "count": 23
-    },
-    {
-      "term": "reasoning",
-      "count": 22
-    },
-    {
-      "term": "hub",
-      "count": 21
+      "count": 88
     },
     {
       "term": "рынок",
-      "count": 21
+      "count": 77
     },
     {
-      "term": "agents",
-      "count": 19
+      "term": "без",
+      "count": 73
     },
     {
-      "term": "training",
-      "count": 19
+      "term": "language",
+      "count": 72
     },
     {
-      "term": "language model",
-      "count": 19
+      "term": "data",
+      "count": 70
     },
     {
-      "term": "evaluation",
-      "count": 18
-    },
-    {
-      "term": "language models",
-      "count": 18
-    },
-    {
-      "term": "fine-tuning",
-      "count": 18
-    },
-    {
-      "term": "source",
-      "count": 18
-    },
-    {
-      "term": "open source",
-      "count": 18
-    },
-    {
-      "term": "api",
-      "count": 18
-    },
-    {
-      "term": "claude",
-      "count": 17
+      "term": "optimization",
+      "count": 68
     },
     {
       "term": "растёт",
-      "count": 17
+      "count": 65
+    },
+    {
+      "term": "health",
+      "count": 62
+    },
+    {
+      "term": "longevity",
+      "count": 60
+    },
+    {
+      "term": "модели",
+      "count": 59
+    },
+    {
+      "term": "generation",
+      "count": 57
+    },
+    {
+      "term": "сигнализирует",
+      "count": 56
+    },
+    {
+      "term": "claude",
+      "count": 55
+    },
+    {
+      "term": "сигнализируя",
+      "count": 55
+    },
+    {
+      "term": "open",
+      "count": 54
+    },
+    {
+      "term": "code",
+      "count": 51
+    },
+    {
+      "term": "через",
+      "count": 48
+    },
+    {
+      "term": "learning",
+      "count": 46
+    },
+    {
+      "term": "training",
+      "count": 45
+    },
+    {
+      "term": "open-source",
+      "count": 44
+    },
+    {
+      "term": "vision",
+      "count": 42
+    },
+    {
+      "term": "reasoning",
+      "count": 41
+    },
+    {
+      "term": "api",
+      "count": 41
     }
   ],
   "topic_curr": {
-    "vision language models": 3,
+    "vision language models": 4,
+    "биотех финансы": 4,
+    "открытые llm модели": 3,
     "mcp агенты": 2,
     "мультимодальные языковые модели": 2,
+    "безопасность llm": 2,
+    "квантизация llm": 2,
+    "безопасность моделей": 2,
+    "оптимизация LLM inference": 2,
     "оптимизация инференса llm": 2,
-    "открытые llm модели": 2,
+    "облачные LLM сервисы": 2,
+    "безопасность AI-агентов": 2,
     "открытые модели рассуждений": 2,
-    "ai security testing": 2,
-    "безопасность памяти ai": 1,
-    "оценка GUI-агентов": 1,
-    "оптимизация vlm inference": 1,
-    "локальный AI звук на ARM": 1,
-    "робо-视觉-язык модели": 1,
-    "оптимизация llm на gpu": 1,
-    "детерминированный вывод агентов": 1,
-    "оптимизация обучения llm": 1
+    "облачное развёртывание моделей": 2,
+    "ai security testing": 2
   },
   "topic_prev": {
     "vision language models": 2,
