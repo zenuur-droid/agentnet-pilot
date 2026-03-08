@@ -667,6 +667,36 @@ def patch_stale_tasks(note_path: Path):
     print(f"✅ [patch] Задачи обновлены")
 
 
+def patch_stale_alerts(note_path: Path):
+    """Заменяет блок алертов на актуальный из SSoT (active-alerts.yaml).
+    Mac может инжектировать своей старой версией кода напрямую из meta-analysis.py —
+    показывая resolved алерты. Linux каждые 10 мин перезаписывает блок по SSoT.
+    Если open-алертов нет — блок удаляется полностью."""
+    text = note_path.read_text(encoding="utf-8")
+    # Найти блок alerts между маркерами
+    m = re.search(r"<!-- alerts-start -->.*?<!-- alerts-end -->", text, re.DOTALL)
+    if not m:
+        return  # Блока нет — inject сам разберётся
+
+    fresh_section = build_alerts_section()  # None если нет open-алертов
+
+    if fresh_section is None:
+        # Нет открытых алертов — удалить блок целиком (вместе с маркерами и пустой строкой)
+        new_text = re.sub(r"\n?<!-- alerts-start -->.*?<!-- alerts-end -->\n?", "\n", text, flags=re.DOTALL)
+        note_path.write_text(new_text, encoding="utf-8")
+        print("✅ [patch] Алерты убраны (нет открытых)")
+        return
+
+    new_block = f"<!-- alerts-start -->\n{fresh_section}\n<!-- alerts-end -->"
+    current_block = m.group(0)
+    if new_block == current_block:
+        return  # Актуально
+
+    new_text = text[:m.start()] + new_block + text[m.end():]
+    note_path.write_text(new_text, encoding="utf-8")
+    print("✅ [patch] Алерты обновлены из SSoT")
+
+
 def sync_tasks_index():
     """Запускает sync-tasks.sh чтобы индекс задач был свежим перед инжектом.
     KE-008: без этого daily-inject читает устаревший индекс — done-задачи попадают в Активные."""
@@ -708,6 +738,7 @@ def main():
         print(f"Заметка не создана ещё: {note.name} — жду")
         sys.exit(0)
     inject(note)
+    patch_stale_alerts(note) # Патч алертов из SSoT (Mac мог показать resolved алерты)
     patch_empty_news(note)   # Патч пустых Новостей (Mac мог заинжектировать раньше)
     patch_stale_tasks(note)  # Патч устаревших Задач (Mac мог заинжектировать раньше)
     run_proposal_agent()
