@@ -667,6 +667,26 @@ def patch_stale_tasks(note_path: Path):
     print(f"✅ [patch] Задачи обновлены")
 
 
+def sync_tasks_index():
+    """Запускает sync-tasks.sh чтобы индекс задач был свежим перед инжектом.
+    KE-008: без этого daily-inject читает устаревший индекс — done-задачи попадают в Активные."""
+    sync_sh = Path.home() / "sync-tasks.sh"
+    if not sync_sh.exists():
+        print("[sync-tasks] warn: ~/sync-tasks.sh не найден")
+        return
+    try:
+        r = subprocess.run(
+            ["bash", str(sync_sh)],
+            capture_output=True, text=True, timeout=30
+        )
+        if r.returncode == 0:
+            print(f"[sync-tasks] ok: {r.stdout.strip()}")
+        else:
+            print(f"[sync-tasks] warn: {r.stderr.strip()}")
+    except Exception as e:
+        print(f"[sync-tasks] skip: {e}")
+
+
 def main():
     # Синхронизируем agentnet-pilot перед чтением фидов
     # Без этого Mac/Laptop читают устаревшие сигналы и блок Новости пустой
@@ -679,6 +699,9 @@ def main():
             print(f"[agentnet pull] warn: {r.stderr.strip()}")
     except Exception as e:
         print(f"[agentnet pull] skip: {e}")
+
+    # Обновляем индекс задач (KE-008: без этого done-задачи попадают в блок Активных)
+    sync_tasks_index()
 
     note = today_note_path()
     if not note.exists():
