@@ -440,7 +440,7 @@ def inject(note_path: Path):
 
     # Ссылка на брифинг — в самый низ (без HTML-комментария)
     briefing_name = f"Брифинг {briefing_date_str(today)}"
-    new_text = new_text.rstrip() + f"\n\n[[{briefing_name}]]\n"
+    new_text = new_text.rstrip() + f"\n\n\n[[{briefing_name}]]\n"
 
     note_path.write_text(new_text, encoding="utf-8")
     print(f"✅ AI-блок добавлен в {note_path.name}")
