@@ -339,55 +339,39 @@ def build_ecc_insights_section() -> str | None:
     return "\n".join(lines)
 
 
-def inject(note_path: Path):
-    today  = datetime.now().date()
-    marker = f"<!-- ai-inject: {today.isoformat()} -->"
-    text   = note_path.read_text(encoding="utf-8")
+def briefing_date_str(today=None) -> str:
+    """Дата в формате ДД.ММ.ГГГГ для имени брифинга."""
+    if today is None:
+        today = datetime.now().date()
+    return today.strftime("%d.%m.%Y")
 
-    if marker in text:
-        print(f"Уже инжектировано: {note_path.name}")
-        return
 
-    # Читаем данные из agentnet
-    ag_signals  = load_recent(AG_PROJ_FILE, days=7)
-    cl_ideas    = load_recent(CLAUDE_FILE,  days=7, limit=500)
-    mkt_signals = load_recent(MARKET_FILE,  days=3, limit=1000)  # Много сигналов, фильтруем по relevant_to_oleg
+BRIEFINGS_DIR = VAULT / "Брифинги"
 
-    alerts_section  = build_alerts_section()
-    tasks_section   = build_tasks_section()
-    ecc_section     = build_ecc_insights_section()
+def briefing_note_path(today=None) -> Path:
+    if today is None:
+        today = datetime.now().date()
+    BRIEFINGS_DIR.mkdir(exist_ok=True)
+    return BRIEFINGS_DIR / f"Брифинг {briefing_date_str(today)}.md"
 
-    parts = [marker]
-    if alerts_section:
-        parts += [
-            "<!-- alerts-start -->",
-            alerts_section,
-            "<!-- alerts-end -->",
-            "",
-            "---",
-            "",
-        ]
+
+def write_briefing_note(today, ag_signals: list, cl_ideas: list, mkt_signals: list):
+    """Создаёт/обновляет заметку-брифинг с аналитическими секциями."""
+    path = briefing_note_path(today)
+
+    tasks_section = build_tasks_section()
+    parts = [f"# Брифинг {briefing_date_str(today)}\n"]
     if tasks_section:
-        parts += [
-            tasks_section,
-            "",
-            "---",
-            "",
-        ]
+        parts += [tasks_section, "", "---", ""]
+
+    ecc_section = build_ecc_insights_section()
     if ecc_section:
-        parts += [
-            ecc_section,
-            "---",
-            "",
-        ]
+        parts += [ecc_section, "", "---", ""]
+
     time_section = build_time_analysis_section()
     if time_section:
-        parts += [
-            time_section,
-            "",
-            "---",
-            "",
-        ]
+        parts += [time_section, "", "---", ""]
+
     parts += [
         build_agentnet_section(ag_signals),
         "",
@@ -401,6 +385,50 @@ def inject(note_path: Path):
         "",
     ]
 
+    path.write_text("\n".join(parts), encoding="utf-8")
+    print(f"✅ Брифинг создан: {path.name}")
+
+
+def inject(note_path: Path):
+    today  = datetime.now().date()
+    # Признак "уже инжектировано" — наличие ссылки на брифинг в заметке
+    briefing_name = f"Брифинг {briefing_date_str(today)}"
+    briefing_link = f"[[{briefing_name}]]"
+
+    # Читаем данные из agentnet (нужны всегда — для брифинга)
+    ag_signals  = load_recent(AG_PROJ_FILE, days=7)
+    cl_ideas    = load_recent(CLAUDE_FILE,  days=7, limit=500)
+    mkt_signals = load_recent(MARKET_FILE,  days=3, limit=1000)
+
+    # Брифинг создаём/обновляем каждый раз (данные могут обновиться)
+    write_briefing_note(today, ag_signals, cl_ideas, mkt_signals)
+
+    text = note_path.read_text(encoding="utf-8")
+
+    # Убираем старый видимый маркер если остался
+    old_marker = f"<!-- ai-inject: {today.isoformat()} -->"
+    if old_marker in text:
+        text = text.replace(old_marker + "\n", "").replace(old_marker, "")
+        note_path.write_text(text, encoding="utf-8")
+
+    if briefing_link in text:
+        print(f"Уже инжектировано: {note_path.name}")
+        return
+
+    # В ежедневную заметку — только алерты (задачи теперь в брифинге)
+    alerts_section = build_alerts_section()
+
+    parts = []
+    if alerts_section:
+        parts += [
+            "<!-- alerts-start -->",
+            alerts_section,
+            "<!-- alerts-end -->",
+            "",
+            "---",
+            "",
+        ]
+
     block = "\n".join(parts)
 
     # Вставляем перед первым --- (разделитель после погоды)
@@ -408,7 +436,11 @@ def inject(note_path: Path):
     if sep_idx != -1:
         new_text = text[:sep_idx] + "\n\n" + block + text[sep_idx:]
     else:
-        new_text = text.rstrip() + "\n\n" + block + "\n\n---\n"
+        new_text = text.rstrip() + "\n\n" + block
+
+    # Ссылка на брифинг — в самый низ (без HTML-комментария)
+    briefing_name = f"Брифинг {briefing_date_str(today)}"
+    new_text = new_text.rstrip() + f"\n\n[[{briefing_name}]]\n"
 
     note_path.write_text(new_text, encoding="utf-8")
     print(f"✅ AI-блок добавлен в {note_path.name}")
@@ -422,9 +454,10 @@ def inject(note_path: Path):
         "ssh -i /Users/user/.ssh/github_ed25519 -o StrictHostKeyChecking=no"
     )
     try:
-        rel = str(note_path.relative_to(VAULT))
+        briefing_rel = str(briefing_note_path(today).relative_to(VAULT))
+        daily_rel    = str(note_path.relative_to(VAULT))
         subprocess.run(
-            ["git", "-C", str(VAULT), "add", rel],
+            ["git", "-C", str(VAULT), "add", daily_rel, briefing_rel],
             capture_output=True, timeout=15, env=env
         )
         r = subprocess.run(
@@ -622,12 +655,16 @@ def run_proposal_agent():
 
 
 def patch_empty_news(note_path: Path):
-    """Если маркер уже стоит, но Новости пусты — заменить секцию.
-    Нужно потому что Mac может заинжектировать раньше Linux и получить пустые
-    Новости (signals живут на Linux, у Mac нет свежих данных).
-    Запускается каждый раз независимо от маркера."""
+    """Если Новости пусты в брифинге — заменить секцию.
+    Mac создаёт брифинг раньше Linux и получает пустые Новости
+    (signals живут на Linux). Linux каждые 10 мин патчит брифинг."""
+    today = datetime.now().date()
+    briefing_path = briefing_note_path(today)
+    if not briefing_path.exists():
+        return
+
     EMPTY_MARKER = "*(нет новостей за 3 дня)*"
-    text = note_path.read_text(encoding="utf-8")
+    text = briefing_path.read_text(encoding="utf-8")
     if EMPTY_MARKER not in text:
         return  # Новости уже заполнены
 
@@ -639,16 +676,18 @@ def patch_empty_news(note_path: Path):
     new_section = build_ideas_section(mkt_signals)
     old_section = f"### 📬 Новости\n{EMPTY_MARKER}"
     new_text = text.replace(old_section, new_section)
-    note_path.write_text(new_text, encoding="utf-8")
-    print(f"✅ [patch] Новости обновлены: {len(relevant)} сигналов")
+    briefing_path.write_text(new_text, encoding="utf-8")
+    print(f"✅ [patch] Новости обновлены в брифинге: {len(relevant)} сигналов")
 
 
 def patch_stale_tasks(note_path: Path):
-    """Если маркер уже стоит, но задачи устарели — перегенерировать блок.
-    Mac инжектирует с индексом задач момента инжекта. Если задачи закрылись позже
-    (или Linux обновил индекс) — блок в заметке врёт. Каждые 10 мин Linux проверяет.
-    Запускается каждый раз независимо от маркера."""
-    text = note_path.read_text(encoding="utf-8")
+    """Если задачи в брифинге устарели — перегенерировать блок.
+    Задачи теперь живут в брифинге, не в ежедневной заметке."""
+    today = datetime.now().date()
+    briefing_path = briefing_note_path(today)
+    if not briefing_path.exists():
+        return
+    text = briefing_path.read_text(encoding="utf-8")
     # Ищем существующий блок задач
     m = re.search(r"(### 📅 Задачи[^\n]*\n(?:.*\n)*?)(?=\n---|\Z)", text)
     if not m:
@@ -663,8 +702,8 @@ def patch_stale_tasks(note_path: Path):
         return  # Актуально, не трогаем
 
     new_text = text[:m.start()] + fresh_block + text[m.end():]
-    note_path.write_text(new_text, encoding="utf-8")
-    print(f"✅ [patch] Задачи обновлены")
+    briefing_path.write_text(new_text, encoding="utf-8")
+    print(f"✅ [patch] Задачи обновлены в брифинге")
 
 
 def patch_stale_alerts(note_path: Path):
@@ -695,6 +734,36 @@ def patch_stale_alerts(note_path: Path):
     new_text = text[:m.start()] + new_block + text[m.end():]
     note_path.write_text(new_text, encoding="utf-8")
     print("✅ [patch] Алерты обновлены из SSoT")
+
+
+def patch_briefing_link(note_path: Path):
+    """Добавляет ссылку на брифинг в самый низ ежедневной заметки,
+    если её там ещё нет. Также заменяет старый формат (с HTML-комментарием
+    или YYYY-MM-DD датой) на новый [[Брифинг ДД.ММ.ГГГГ]]."""
+    today = datetime.now().date()
+    briefing_name = f"Брифинг {briefing_date_str(today)}"
+    text = note_path.read_text(encoding="utf-8")
+
+    # Заменяем старый HTML-маркер + ссылку на просто ссылку
+    old_marker = f"<!-- briefing-link: {today.isoformat()} -->"
+    if old_marker in text:
+        new_text = text.replace(
+            f"{old_marker}\n[[Брифинг {today.isoformat()}]]",
+            f"[[{briefing_name}]]"
+        )
+        if new_text != text:
+            note_path.write_text(new_text, encoding="utf-8")
+            print(f"✅ [patch] Маркер брифинга заменён на [[{briefing_name}]]")
+        return
+
+    # Ссылка уже в новом формате — всё ок
+    if f"[[{briefing_name}]]" in text:
+        return
+
+    # Ссылки нет вообще — добавляем
+    new_text = text.rstrip() + f"\n\n[[{briefing_name}]]\n"
+    note_path.write_text(new_text, encoding="utf-8")
+    print(f"✅ [patch] Ссылка на брифинг добавлена: [[{briefing_name}]]")
 
 
 def sync_tasks_index():
@@ -738,9 +807,10 @@ def main():
         print(f"Заметка не создана ещё: {note.name} — жду")
         sys.exit(0)
     inject(note)
-    patch_stale_alerts(note) # Патч алертов из SSoT (Mac мог показать resolved алерты)
-    patch_empty_news(note)   # Патч пустых Новостей (Mac мог заинжектировать раньше)
-    patch_stale_tasks(note)  # Патч устаревших Задач (Mac мог заинжектировать раньше)
+    patch_stale_alerts(note)   # Патч алертов из SSoT (Mac мог показать resolved алерты)
+    patch_empty_news(note)     # Патч пустых Новостей в брифинге (Mac мог заинжектировать раньше)
+    patch_stale_tasks(note)    # Патч устаревших Задач (Mac мог заинжектировать раньше)
+    patch_briefing_link(note)  # Ссылка на брифинг в конце ежедневной (если отсутствует)
     run_proposal_agent()
     inject_proposals(note)
 
