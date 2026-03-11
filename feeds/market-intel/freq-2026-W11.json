@@ -1,340 +1,235 @@
 {
-  "generated_at": "2026-03-10T03:05:01.531879",
+  "generated_at": "2026-03-11T03:05:02.017798",
   "week": "2026-W11",
   "prev_week": "2026-W10",
-  "curr_signals_count": 248,
+  "curr_signals_count": 455,
   "prev_signals_count": 912,
   "rising": [
     {
-      "term": "game",
-      "curr": 36,
-      "prev": 3,
-      "pct_change": 1100,
-      "label": "+1100%"
+      "term": "transformers",
+      "curr": 58,
+      "prev": 27,
+      "pct_change": 115,
+      "label": "+115%"
+    },
+    {
+      "term": "diffusion",
+      "curr": 53,
+      "prev": 30,
+      "pct_change": 77,
+      "label": "+77%"
     }
   ],
   "falling": [
     {
-      "term": "claude",
-      "curr": 7,
-      "prev": 69,
-      "pct_change": -90,
-      "label": "-90%"
-    },
-    {
       "term": "language",
-      "curr": 13,
+      "curr": 20,
       "prev": 96,
-      "pct_change": -86,
-      "label": "-86%"
-    },
-    {
-      "term": "data",
-      "curr": 21,
-      "prev": 118,
-      "pct_change": -82,
-      "label": "-82%"
-    },
-    {
-      "term": "code",
-      "curr": 14,
-      "prev": 75,
-      "pct_change": -81,
-      "label": "-81%"
-    },
-    {
-      "term": "api",
-      "curr": 13,
-      "prev": 70,
-      "pct_change": -81,
-      "label": "-81%"
+      "pct_change": -79,
+      "label": "-79%"
     },
     {
       "term": "llm",
-      "curr": 90,
+      "curr": 136,
       "prev": 414,
-      "pct_change": -78,
-      "label": "-78%"
+      "pct_change": -67,
+      "label": "-67%"
     },
     {
-      "term": "model",
-      "curr": 36,
-      "prev": 141,
-      "pct_change": -74,
-      "label": "-74%"
+      "term": "api",
+      "curr": 24,
+      "prev": 70,
+      "pct_change": -66,
+      "label": "-66%"
+    },
+    {
+      "term": "data",
+      "curr": 41,
+      "prev": 118,
+      "pct_change": -65,
+      "label": "-65%"
     },
     {
       "term": "open",
-      "curr": 22,
+      "curr": 31,
       "prev": 86,
-      "pct_change": -74,
-      "label": "-74%"
+      "pct_change": -64,
+      "label": "-64%"
     },
     {
-      "term": "сигнализируя",
-      "curr": 21,
-      "prev": 78,
-      "pct_change": -73,
-      "label": "-73%"
+      "term": "code",
+      "curr": 28,
+      "prev": 75,
+      "pct_change": -63,
+      "label": "-63%"
     },
     {
       "term": "open-source",
-      "curr": 18,
+      "curr": 25,
       "prev": 67,
-      "pct_change": -73,
-      "label": "-73%"
+      "pct_change": -63,
+      "label": "-63%"
     },
     {
-      "term": "рынок",
-      "curr": 32,
-      "prev": 114,
-      "pct_change": -72,
-      "label": "-72%"
-    },
-    {
-      "term": "сигнализирует",
-      "curr": 26,
-      "prev": 94,
-      "pct_change": -72,
-      "label": "-72%"
+      "term": "claude",
+      "curr": 27,
+      "prev": 69,
+      "pct_change": -61,
+      "label": "-61%"
     },
     {
       "term": "через",
-      "curr": 21,
-      "prev": 76,
-      "pct_change": -72,
-      "label": "-72%"
-    },
-    {
-      "term": "без",
-      "curr": 36,
-      "prev": 123,
-      "pct_change": -71,
-      "label": "-71%"
-    },
-    {
-      "term": "растёт",
-      "curr": 30,
-      "prev": 103,
-      "pct_change": -71,
-      "label": "-71%"
-    },
-    {
-      "term": "clinical",
-      "curr": 19,
-      "prev": 66,
-      "pct_change": -71,
-      "label": "-71%"
-    },
-    {
-      "term": "optimization",
       "curr": 34,
-      "prev": 112,
-      "pct_change": -70,
-      "label": "-70%"
+      "prev": 76,
+      "pct_change": -55,
+      "label": "-55%"
     },
     {
-      "term": "biotech",
-      "curr": 24,
-      "prev": 78,
-      "pct_change": -69,
-      "label": "-69%"
-    },
-    {
-      "term": "longevity",
-      "curr": 35,
-      "prev": 110,
-      "pct_change": -68,
-      "label": "-68%"
-    },
-    {
-      "term": "модели",
-      "curr": 28,
-      "prev": 87,
-      "pct_change": -68,
-      "label": "-68%"
-    },
-    {
-      "term": "моделей",
-      "curr": 49,
-      "prev": 142,
-      "pct_change": -65,
-      "label": "-65%"
-    },
-    {
-      "term": "drug",
-      "curr": 26,
-      "prev": 75,
-      "pct_change": -65,
-      "label": "-65%"
-    },
-    {
-      "term": "models",
-      "curr": 49,
-      "prev": 138,
-      "pct_change": -64,
-      "label": "-64%"
-    },
-    {
-      "term": "health",
-      "curr": 35,
-      "prev": 96,
-      "pct_change": -64,
-      "label": "-64%"
-    },
-    {
-      "term": "inference",
-      "curr": 70,
-      "prev": 177,
-      "pct_change": -60,
-      "label": "-60%"
-    },
-    {
-      "term": "generation",
-      "curr": 41,
-      "prev": 85,
-      "pct_change": -52,
-      "label": "-52%"
+      "term": "model",
+      "curr": 69,
+      "prev": 141,
+      "pct_change": -51,
+      "label": "-51%"
     }
   ],
   "top_terms": [
     {
       "term": "hugging",
-      "count": 108
+      "count": 154
     },
     {
       "term": "face",
-      "count": 108
+      "count": 154
     },
     {
       "term": "hugging face",
-      "count": 108
+      "count": 154
     },
     {
       "term": "llm",
-      "count": 90
+      "count": 136
     },
     {
       "term": "inference",
-      "count": 70
+      "count": 109
     },
     {
       "term": "models",
-      "count": 49
-    },
-    {
-      "term": "моделей",
-      "count": 49
-    },
-    {
-      "term": "generation",
-      "count": 41
-    },
-    {
-      "term": "без",
-      "count": 36
-    },
-    {
-      "term": "model",
-      "count": 36
-    },
-    {
-      "term": "learning",
-      "count": 36
-    },
-    {
-      "term": "game",
-      "count": 36
+      "count": 85
     },
     {
       "term": "health",
-      "count": 35
+      "count": 82
+    },
+    {
+      "term": "learning",
+      "count": 81
+    },
+    {
+      "term": "моделей",
+      "count": 74
+    },
+    {
+      "term": "model",
+      "count": 69
     },
     {
       "term": "longevity",
-      "count": 35
+      "count": 69
     },
     {
-      "term": "optimization",
-      "count": 34
+      "term": "без",
+      "count": 67
     },
     {
       "term": "рынок",
-      "count": 32
-    },
-    {
-      "term": "diffusion",
-      "count": 30
-    },
-    {
-      "term": "transformers",
-      "count": 30
+      "count": 62
     },
     {
       "term": "растёт",
-      "count": 30
-    },
-    {
-      "term": "fine-tuning",
-      "count": 29
-    },
-    {
-      "term": "модели",
-      "count": 28
-    },
-    {
-      "term": "training",
-      "count": 28
-    },
-    {
-      "term": "development",
-      "count": 28
-    },
-    {
-      "term": "image",
-      "count": 26
-    },
-    {
-      "term": "сигнализирует",
-      "count": 26
+      "count": 61
     },
     {
       "term": "drug",
-      "count": 26
-    },
-    {
-      "term": "medicine",
-      "count": 26
-    },
-    {
-      "term": "становится",
-      "count": 24
+      "count": 60
     },
     {
       "term": "biotech",
-      "count": 24
+      "count": 60
+    },
+    {
+      "term": "optimization",
+      "count": 59
+    },
+    {
+      "term": "transformers",
+      "count": 58
+    },
+    {
+      "term": "generation",
+      "count": 57
+    },
+    {
+      "term": "diffusion",
+      "count": 53
+    },
+    {
+      "term": "training",
+      "count": 50
+    },
+    {
+      "term": "сигнализирует",
+      "count": 48
+    },
+    {
+      "term": "fda",
+      "count": 48
+    },
+    {
+      "term": "модели",
+      "count": 44
+    },
+    {
+      "term": "clinical",
+      "count": 43
+    },
+    {
+      "term": "medicine",
+      "count": 42
+    },
+    {
+      "term": "fine-tuning",
+      "count": 41
+    },
+    {
+      "term": "сигнализируя",
+      "count": 41
+    },
+    {
+      "term": "data",
+      "count": 41
     },
     {
       "term": "therapy",
-      "count": 24
+      "count": 41
     }
   ],
   "topic_curr": {
+    "ai в здравоохранении": 5,
+    "медицинская диагностика": 4,
+    "регенеративная медицина": 3,
     "биотех финансирование": 3,
+    "фармацевтика клинические испытания": 3,
     "vision-language модели": 2,
     "локальная генерация изображений": 2,
     "hugging face ecosystem": 2,
+    "hugging face экосистема": 2,
     "ai в healthcare": 2,
-    "ai в здравоохранении": 2,
-    "медицинская диагностика": 2,
+    "фармацевтика, клинические испытания": 2,
+    "ai drug discovery": 2,
+    "персонализированная медицина": 2,
     "облачная инфраструктура AI": 2,
-    "graph neural networks": 2,
-    "нейробиология памяти": 2,
-    "компьютерное зрение": 2,
-    "ai-delusion psychology": 1,
-    "диффузионные модели изображений": 1,
-    "fine-tuning локальных llm": 1,
-    "quantization трансформеры": 1
+    "graph neural networks": 2
   },
   "topic_prev": {
     "биотех финансирование": 6,
