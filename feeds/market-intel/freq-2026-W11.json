@@ -1,235 +1,214 @@
 {
-  "generated_at": "2026-03-11T03:05:02.017798",
+  "generated_at": "2026-03-12T03:05:01.720553",
   "week": "2026-W11",
   "prev_week": "2026-W10",
-  "curr_signals_count": 455,
+  "curr_signals_count": 682,
   "prev_signals_count": 912,
   "rising": [
     {
-      "term": "transformers",
-      "curr": 58,
-      "prev": 27,
-      "pct_change": 115,
-      "label": "+115%"
+      "term": "learning",
+      "curr": 135,
+      "prev": 66,
+      "pct_change": 105,
+      "label": "+105%"
     },
     {
-      "term": "diffusion",
-      "curr": 53,
-      "prev": 30,
-      "pct_change": 77,
-      "label": "+77%"
+      "term": "transformers",
+      "curr": 106,
+      "prev": 27,
+      "pct_change": 293,
+      "label": "+293%"
+    },
+    {
+      "term": "fda",
+      "curr": 73,
+      "prev": 39,
+      "pct_change": 87,
+      "label": "+87%"
+    },
+    {
+      "term": "market",
+      "curr": 62,
+      "prev": 34,
+      "pct_change": 82,
+      "label": "+82%"
     }
   ],
   "falling": [
     {
       "term": "language",
-      "curr": 20,
+      "curr": 32,
       "prev": 96,
-      "pct_change": -79,
-      "label": "-79%"
-    },
-    {
-      "term": "llm",
-      "curr": 136,
-      "prev": 414,
       "pct_change": -67,
       "label": "-67%"
     },
     {
-      "term": "api",
-      "curr": 24,
-      "prev": 70,
-      "pct_change": -66,
-      "label": "-66%"
-    },
-    {
-      "term": "data",
-      "curr": 41,
-      "prev": 118,
-      "pct_change": -65,
-      "label": "-65%"
+      "term": "llm",
+      "curr": 171,
+      "prev": 414,
+      "pct_change": -59,
+      "label": "-59%"
     },
     {
       "term": "open",
-      "curr": 31,
+      "curr": 36,
       "prev": 86,
-      "pct_change": -64,
-      "label": "-64%"
+      "pct_change": -58,
+      "label": "-58%"
+    },
+    {
+      "term": "api",
+      "curr": 31,
+      "prev": 70,
+      "pct_change": -56,
+      "label": "-56%"
     },
     {
       "term": "code",
-      "curr": 28,
+      "curr": 35,
       "prev": 75,
-      "pct_change": -63,
-      "label": "-63%"
-    },
-    {
-      "term": "open-source",
-      "curr": 25,
-      "prev": 67,
-      "pct_change": -63,
-      "label": "-63%"
-    },
-    {
-      "term": "claude",
-      "curr": 27,
-      "prev": 69,
-      "pct_change": -61,
-      "label": "-61%"
-    },
-    {
-      "term": "через",
-      "curr": 34,
-      "prev": 76,
-      "pct_change": -55,
-      "label": "-55%"
-    },
-    {
-      "term": "model",
-      "curr": 69,
-      "prev": 141,
-      "pct_change": -51,
-      "label": "-51%"
+      "pct_change": -53,
+      "label": "-53%"
     }
   ],
   "top_terms": [
     {
-      "term": "hugging",
-      "count": 154
+      "term": "face",
+      "count": 220
     },
     {
-      "term": "face",
-      "count": 154
+      "term": "hugging",
+      "count": 219
     },
     {
       "term": "hugging face",
-      "count": 154
+      "count": 219
     },
     {
       "term": "llm",
-      "count": 136
+      "count": 171
     },
     {
       "term": "inference",
+      "count": 161
+    },
+    {
+      "term": "learning",
+      "count": 135
+    },
+    {
+      "term": "health",
+      "count": 116
+    },
+    {
+      "term": "model",
+      "count": 110
+    },
+    {
+      "term": "longevity",
       "count": 109
     },
     {
       "term": "models",
-      "count": 85
-    },
-    {
-      "term": "health",
-      "count": 82
-    },
-    {
-      "term": "learning",
-      "count": 81
+      "count": 108
     },
     {
       "term": "моделей",
-      "count": 74
-    },
-    {
-      "term": "model",
-      "count": 69
-    },
-    {
-      "term": "longevity",
-      "count": 69
-    },
-    {
-      "term": "без",
-      "count": 67
-    },
-    {
-      "term": "рынок",
-      "count": 62
-    },
-    {
-      "term": "растёт",
-      "count": 61
-    },
-    {
-      "term": "drug",
-      "count": 60
-    },
-    {
-      "term": "biotech",
-      "count": 60
-    },
-    {
-      "term": "optimization",
-      "count": 59
+      "count": 107
     },
     {
       "term": "transformers",
-      "count": 58
+      "count": 106
     },
     {
-      "term": "generation",
-      "count": 57
+      "term": "без",
+      "count": 105
     },
     {
-      "term": "diffusion",
-      "count": 53
+      "term": "drug",
+      "count": 101
+    },
+    {
+      "term": "biotech",
+      "count": 97
+    },
+    {
+      "term": "optimization",
+      "count": 93
+    },
+    {
+      "term": "рынок",
+      "count": 90
     },
     {
       "term": "training",
-      "count": 50
+      "count": 78
     },
     {
-      "term": "сигнализирует",
-      "count": 48
+      "term": "растёт",
+      "count": 75
     },
     {
       "term": "fda",
-      "count": 48
+      "count": 73
     },
     {
-      "term": "модели",
-      "count": 44
+      "term": "generation",
+      "count": 71
     },
     {
-      "term": "clinical",
-      "count": 43
-    },
-    {
-      "term": "medicine",
-      "count": 42
+      "term": "сигнализирует",
+      "count": 69
     },
     {
       "term": "fine-tuning",
-      "count": 41
+      "count": 68
     },
     {
-      "term": "сигнализируя",
-      "count": 41
+      "term": "clinical",
+      "count": 64
+    },
+    {
+      "term": "market",
+      "count": 62
+    },
+    {
+      "term": "становится",
+      "count": 61
     },
     {
       "term": "data",
-      "count": 41
+      "count": 60
+    },
+    {
+      "term": "через",
+      "count": 59
+    },
+    {
+      "term": "medicine",
+      "count": 55
     },
     {
       "term": "therapy",
-      "count": 41
+      "count": 55
     }
   ],
   "topic_curr": {
     "ai в здравоохранении": 5,
+    "hugging face экосистема": 4,
+    "ai drug discovery": 4,
     "медицинская диагностика": 4,
     "регенеративная медицина": 3,
     "биотех финансирование": 3,
     "фармацевтика клинические испытания": 3,
+    "биология долголетия": 3,
+    "распределённое обучение": 3,
+    "фармацевтическая регуляция": 3,
+    "политика здравоохранения": 3,
+    "reinforcement learning": 3,
     "vision-language модели": 2,
     "локальная генерация изображений": 2,
-    "hugging face ecosystem": 2,
-    "hugging face экосистема": 2,
-    "ai в healthcare": 2,
-    "фармацевтика, клинические испытания": 2,
-    "ai drug discovery": 2,
-    "персонализированная медицина": 2,
-    "облачная инфраструктура AI": 2,
-    "graph neural networks": 2
+    "hugging face ecosystem": 2
   },
   "topic_prev": {
     "биотех финансирование": 6,
