@@ -1,30 +1,58 @@
 {
-  "generated_at": "2026-03-13T03:05:01.052878",
+  "generated_at": "2026-03-14T03:05:01.287533",
   "week": "2026-W11",
   "prev_week": "2026-W10",
-  "curr_signals_count": 851,
+  "curr_signals_count": 989,
   "prev_signals_count": 912,
   "rising": [
     {
-      "term": "biotech",
-      "curr": 144,
-      "prev": 78,
-      "pct_change": 85,
-      "label": "+85%"
+      "term": "longevity",
+      "curr": 215,
+      "prev": 110,
+      "pct_change": 95,
+      "label": "+95%"
     },
     {
-      "term": "learning",
-      "curr": 140,
-      "prev": 66,
+      "term": "health",
+      "curr": 175,
+      "prev": 96,
+      "pct_change": 82,
+      "label": "+82%"
+    },
+    {
+      "term": "biotech",
+      "curr": 174,
+      "prev": 78,
+      "pct_change": 123,
+      "label": "+123%"
+    },
+    {
+      "term": "drug",
+      "curr": 159,
+      "prev": 75,
       "pct_change": 112,
       "label": "+112%"
     },
     {
-      "term": "drug",
+      "term": "learning",
+      "curr": 144,
+      "prev": 66,
+      "pct_change": 118,
+      "label": "+118%"
+    },
+    {
+      "term": "clinical",
       "curr": 131,
-      "prev": 75,
-      "pct_change": 75,
-      "label": "+75%"
+      "prev": 66,
+      "pct_change": 98,
+      "label": "+98%"
+    },
+    {
+      "term": "fda",
+      "curr": 114,
+      "prev": 39,
+      "pct_change": 192,
+      "label": "+192%"
     },
     {
       "term": "transformers",
@@ -34,76 +62,69 @@
       "label": "+300%"
     },
     {
-      "term": "clinical",
-      "curr": 105,
-      "prev": 66,
-      "pct_change": 59,
-      "label": "+59%"
-    },
-    {
-      "term": "fda",
-      "curr": 90,
-      "prev": 39,
-      "pct_change": 131,
-      "label": "+131%"
+      "term": "aging",
+      "curr": 101,
+      "prev": 51,
+      "pct_change": 98,
+      "label": "+98%"
     },
     {
       "term": "therapy",
-      "curr": 82,
+      "curr": 100,
       "prev": 45,
-      "pct_change": 82,
-      "label": "+82%"
-    },
-    {
-      "term": "aging",
-      "curr": 81,
-      "prev": 51,
-      "pct_change": 59,
-      "label": "+59%"
-    },
-    {
-      "term": "market",
-      "curr": 74,
-      "prev": 34,
-      "pct_change": 118,
-      "label": "+118%"
+      "pct_change": 122,
+      "label": "+122%"
     },
     {
       "term": "medicine",
-      "curr": 73,
+      "curr": 91,
       "prev": 40,
-      "pct_change": 82,
-      "label": "+82%"
+      "pct_change": 127,
+      "label": "+127%"
+    },
+    {
+      "term": "сигнал",
+      "curr": 90,
+      "prev": 54,
+      "pct_change": 67,
+      "label": "+67%"
     },
     {
       "term": "биотех",
-      "curr": 72,
+      "curr": 87,
       "prev": 41,
-      "pct_change": 76,
-      "label": "+76%"
+      "pct_change": 112,
+      "label": "+112%"
+    },
+    {
+      "term": "market",
+      "curr": 84,
+      "prev": 34,
+      "pct_change": 147,
+      "label": "+147%"
     }
   ],
   "falling": [
     {
       "term": "language",
-      "curr": 35,
+      "curr": 36,
       "prev": 96,
-      "pct_change": -64,
-      "label": "-64%"
+      "pct_change": -62,
+      "label": "-62%"
     },
     {
       "term": "open",
-      "curr": 37,
+      "curr": 38,
       "prev": 86,
-      "pct_change": -57,
-      "label": "-57%"
+      "pct_change": -56,
+      "label": "-56%"
     },
     {
       "term": "llm",
-      "curr": 189,
+      "curr": 205,
       "prev": 414,
-      "pct_change": -54,
-      "label": "-54%"
+      "pct_change": -50,
+      "label": "-50%"
     }
   ],
   "top_terms": [
@@ -120,130 +141,130 @@
       "count": 219
     },
     {
+      "term": "longevity",
+      "count": 215
+    },
+    {
       "term": "llm",
-      "count": 189
+      "count": 205
     },
     {
       "term": "inference",
-      "count": 175
-    },
-    {
-      "term": "longevity",
-      "count": 162
-    },
-    {
-      "term": "biotech",
-      "count": 144
+      "count": 179
     },
     {
       "term": "health",
-      "count": 143
+      "count": 175
     },
     {
-      "term": "learning",
-      "count": 140
+      "term": "biotech",
+      "count": 174
     },
     {
       "term": "без",
-      "count": 134
+      "count": 162
     },
     {
       "term": "drug",
-      "count": 131
+      "count": 159
     },
     {
       "term": "рынок",
-      "count": 122
+      "count": 150
+    },
+    {
+      "term": "learning",
+      "count": 144
+    },
+    {
+      "term": "clinical",
+      "count": 131
     },
     {
       "term": "model",
-      "count": 121
-    },
-    {
-      "term": "моделей",
-      "count": 115
+      "count": 123
     },
     {
       "term": "models",
-      "count": 113
+      "count": 118
+    },
+    {
+      "term": "моделей",
+      "count": 118
+    },
+    {
+      "term": "fda",
+      "count": 114
     },
     {
       "term": "transformers",
       "count": 108
     },
     {
-      "term": "clinical",
+      "term": "через",
       "count": 105
     },
     {
       "term": "optimization",
-      "count": 98
-    },
-    {
-      "term": "растёт",
-      "count": 92
+      "count": 104
     },
     {
       "term": "сигнализирует",
-      "count": 91
+      "count": 104
     },
     {
-      "term": "fda",
-      "count": 90
-    },
-    {
-      "term": "через",
-      "count": 87
-    },
-    {
-      "term": "training",
-      "count": 86
-    },
-    {
-      "term": "therapy",
-      "count": 82
+      "term": "растёт",
+      "count": 102
     },
     {
       "term": "aging",
-      "count": 81
+      "count": 101
     },
     {
-      "term": "сигнал",
-      "count": 75
-    },
-    {
-      "term": "generation",
-      "count": 74
-    },
-    {
-      "term": "market",
-      "count": 74
+      "term": "therapy",
+      "count": 100
     },
     {
       "term": "medicine",
-      "count": 73
+      "count": 91
+    },
+    {
+      "term": "сигнал",
+      "count": 90
+    },
+    {
+      "term": "training",
+      "count": 88
     },
     {
       "term": "биотех",
-      "count": 72
+      "count": 87
+    },
+    {
+      "term": "data",
+      "count": 84
+    },
+    {
+      "term": "market",
+      "count": 84
     }
   ],
   "topic_curr": {
+    "ai в здравоохранении": 7,
+    "биотех финансирование": 6,
+    "ai drug discovery": 6,
     "медицинская диагностика": 6,
-    "ai в здравоохранении": 5,
-    "ai drug discovery": 5,
-    "фармацевтическая регуляция": 5,
+    "фармацевтическая регуляция": 6,
+    "биология долголетия": 5,
+    "биофарма клинические испытания": 5,
     "hugging face экосистема": 4,
-    "биотех финансирование": 4,
     "фармацевтика клинические испытания": 4,
-    "биология долголетия": 4,
-    "биофарма клинические испытания": 4,
     "регенеративная медицина": 3,
     "фармацевтика, клинические испытания": 3,
+    "биомедицина, долголетие": 3,
     "фармацевтика, биотех": 3,
     "распределённое обучение": 3,
-    "биология старения": 3,
-    "политика здравоохранения": 3
+    "биомедицинская диагностика": 3
   },
   "topic_prev": {
     "биотех финансирование": 6,
