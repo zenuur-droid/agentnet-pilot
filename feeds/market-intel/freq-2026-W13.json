@@ -1,0 +1,426 @@
+{
+  "generated_at": "2026-03-24T03:05:01.992594",
+  "week": "2026-W13",
+  "prev_week": "2026-W12",
+  "curr_signals_count": 124,
+  "prev_signals_count": 300,
+  "rising": [
+    {
+      "term": "может",
+      "curr": 26,
+      "prev": 12,
+      "pct_change": 117,
+      "label": "+117%"
+    },
+    {
+      "term": "rag",
+      "curr": 14,
+      "prev": 5,
+      "pct_change": 180,
+      "label": "+180%"
+    },
+    {
+      "term": "статья",
+      "curr": 13,
+      "prev": 7,
+      "pct_change": 86,
+      "label": "+86%"
+    },
+    {
+      "term": "wolfram",
+      "curr": 13,
+      "prev": 0,
+      "pct_change": null,
+      "label": "NEW"
+    },
+    {
+      "term": "могут",
+      "curr": 8,
+      "prev": 0,
+      "pct_change": null,
+      "label": "NEW"
+    },
+    {
+      "term": "machine",
+      "curr": 8,
+      "prev": 4,
+      "pct_change": 100,
+      "label": "+100%"
+    },
+    {
+      "term": "google",
+      "curr": 8,
+      "prev": 5,
+      "pct_change": 60,
+      "label": "+60%"
+    },
+    {
+      "term": "интеллект",
+      "curr": 8,
+      "prev": 0,
+      "pct_change": null,
+      "label": "NEW"
+    }
+  ],
+  "falling": [
+    {
+      "term": "wellness",
+      "curr": 0,
+      "prev": 28,
+      "pct_change": -100,
+      "label": "-100%"
+    },
+    {
+      "term": "karpathy",
+      "curr": 3,
+      "prev": 74,
+      "pct_change": -96,
+      "label": "-96%"
+    },
+    {
+      "term": "healthcare",
+      "curr": 2,
+      "prev": 28,
+      "pct_change": -93,
+      "label": "-93%"
+    },
+    {
+      "term": "longevity",
+      "curr": 4,
+      "prev": 48,
+      "pct_change": -92,
+      "label": "-92%"
+    },
+    {
+      "term": "переходит",
+      "curr": 2,
+      "prev": 25,
+      "pct_change": -92,
+      "label": "-92%"
+    },
+    {
+      "term": "autonomous",
+      "curr": 3,
+      "prev": 32,
+      "pct_change": -91,
+      "label": "-91%"
+    },
+    {
+      "term": "autoresearch",
+      "curr": 3,
+      "prev": 32,
+      "pct_change": -91,
+      "label": "-91%"
+    },
+    {
+      "term": "растёт",
+      "curr": 2,
+      "prev": 22,
+      "pct_change": -91,
+      "label": "-91%"
+    },
+    {
+      "term": "сигнал",
+      "curr": 6,
+      "prev": 63,
+      "pct_change": -90,
+      "label": "-90%"
+    },
+    {
+      "term": "health",
+      "curr": 5,
+      "prev": 42,
+      "pct_change": -88,
+      "label": "-88%"
+    },
+    {
+      "term": "рынок",
+      "curr": 6,
+      "prev": 45,
+      "pct_change": -87,
+      "label": "-87%"
+    },
+    {
+      "term": "biotech",
+      "curr": 4,
+      "prev": 31,
+      "pct_change": -87,
+      "label": "-87%"
+    },
+    {
+      "term": "сигнализирует",
+      "curr": 4,
+      "prev": 30,
+      "pct_change": -87,
+      "label": "-87%"
+    },
+    {
+      "term": "inference",
+      "curr": 4,
+      "prev": 29,
+      "pct_change": -86,
+      "label": "-86%"
+    },
+    {
+      "term": "clinical",
+      "curr": 4,
+      "prev": 28,
+      "pct_change": -86,
+      "label": "-86%"
+    },
+    {
+      "term": "training",
+      "curr": 4,
+      "prev": 27,
+      "pct_change": -85,
+      "label": "-85%"
+    },
+    {
+      "term": "agents",
+      "curr": 5,
+      "prev": 29,
+      "pct_change": -83,
+      "label": "-83%"
+    },
+    {
+      "term": "medicine",
+      "curr": 5,
+      "prev": 23,
+      "pct_change": -78,
+      "label": "-78%"
+    },
+    {
+      "term": "agent",
+      "curr": 9,
+      "prev": 39,
+      "pct_change": -77,
+      "label": "-77%"
+    },
+    {
+      "term": "policy",
+      "curr": 5,
+      "prev": 22,
+      "pct_change": -77,
+      "label": "-77%"
+    },
+    {
+      "term": "gpu",
+      "curr": 7,
+      "prev": 27,
+      "pct_change": -74,
+      "label": "-74%"
+    },
+    {
+      "term": "без",
+      "curr": 14,
+      "prev": 52,
+      "pct_change": -73,
+      "label": "-73%"
+    },
+    {
+      "term": "safety",
+      "curr": 6,
+      "prev": 22,
+      "pct_change": -73,
+      "label": "-73%"
+    },
+    {
+      "term": "через",
+      "curr": 8,
+      "prev": 29,
+      "pct_change": -72,
+      "label": "-72%"
+    },
+    {
+      "term": "llm",
+      "curr": 21,
+      "prev": 63,
+      "pct_change": -67,
+      "label": "-67%"
+    },
+    {
+      "term": "automation",
+      "curr": 9,
+      "prev": 26,
+      "pct_change": -65,
+      "label": "-65%"
+    },
+    {
+      "term": "learning",
+      "curr": 11,
+      "prev": 28,
+      "pct_change": -61,
+      "label": "-61%"
+    },
+    {
+      "term": "models",
+      "curr": 9,
+      "prev": 23,
+      "pct_change": -61,
+      "label": "-61%"
+    },
+    {
+      "term": "nvidia",
+      "curr": 12,
+      "prev": 27,
+      "pct_change": -56,
+      "label": "-56%"
+    }
+  ],
+  "top_terms": [
+    {
+      "term": "может",
+      "count": 26
+    },
+    {
+      "term": "llm",
+      "count": 21
+    },
+    {
+      "term": "tech",
+      "count": 17
+    },
+    {
+      "term": "без",
+      "count": 14
+    },
+    {
+      "term": "rag",
+      "count": 14
+    },
+    {
+      "term": "агентов",
+      "count": 14
+    },
+    {
+      "term": "claude",
+      "count": 13
+    },
+    {
+      "term": "статья",
+      "count": 13
+    },
+    {
+      "term": "wolfram",
+      "count": 13
+    },
+    {
+      "term": "openai",
+      "count": 12
+    },
+    {
+      "term": "nvidia",
+      "count": 12
+    },
+    {
+      "term": "learning",
+      "count": 11
+    },
+    {
+      "term": "инструменты",
+      "count": 9
+    },
+    {
+      "term": "code",
+      "count": 9
+    },
+    {
+      "term": "automation",
+      "count": 9
+    },
+    {
+      "term": "agent",
+      "count": 9
+    },
+    {
+      "term": "models",
+      "count": 9
+    },
+    {
+      "term": "разработки",
+      "count": 8
+    },
+    {
+      "term": "через",
+      "count": 8
+    },
+    {
+      "term": "могут",
+      "count": 8
+    },
+    {
+      "term": "данных",
+      "count": 8
+    },
+    {
+      "term": "machine",
+      "count": 8
+    },
+    {
+      "term": "development",
+      "count": 8
+    },
+    {
+      "term": "language",
+      "count": 8
+    },
+    {
+      "term": "google",
+      "count": 8
+    },
+    {
+      "term": "интеллект",
+      "count": 8
+    },
+    {
+      "term": "api",
+      "count": 7
+    },
+    {
+      "term": "research",
+      "count": 7
+    },
+    {
+      "term": "data",
+      "count": 7
+    },
+    {
+      "term": "anthropic",
+      "count": 7
+    }
+  ],
+  "topic_curr": {
+    "AI/tech": 8,
+    "AI": 5,
+    "ai": 3,
+    "безопасность": 2,
+    "RAG": 2,
+    "персональный блог, контент-менеджмент": 1,
+    "веб-фреймворк python": 1,
+    "веб-фреймворки python": 1,
+    "веб-производительность": 1,
+    "javascript sandboxing": 1,
+    "embeddings, domain adaptation": 1,
+    "data processing libraries": 1,
+    "claude code инструменты": 1,
+    "claude api инструменты": 1,
+    "claude cli инструмент": 1
+  },
+  "topic_prev": {
+    "биотех финансирование": 4,
+    "персонализированная медицина": 2,
+    "фармацевтика клинические испытания": 2,
+    "автономные исследовательские агенты": 2,
+    "training infrastructure": 2,
+    "обучение моделей": 2,
+    "медицинская политика": 2,
+    "фармацевтическая политика": 2,
+    "биотех долголетие": 2,
+    "инженерия кодирующих агентов": 1,
+    "философия AGI сознание": 1,
+    "no-code игры, ai генерация": 1,
+    "финтех чат-бот": 1,
+    "мета-диагностика обучения": 1,
+    "личность в LLM": 1
+  }
+}
