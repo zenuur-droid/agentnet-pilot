@@ -449,7 +449,7 @@ def build_recon_section(signals: list, decided: tuple | None = None) -> str:
     weekly  = [s for s in triaged if s.get("urgency") == "week"]
     monthly = [s for s in triaged if s.get("urgency") == "month"]
 
-    shown = min(len(urgent), 3) + min(len(weekly), 3) + min(len(monthly), 2)
+    shown = min(len(urgent), 5) + min(len(weekly), 5) + min(len(monthly), 3)
     lines = [
         f"### 📡 Разведка — {shown}/{len(triaged)}",
         "*(⚡ горячий — действовать · 📡 тёплый — мониторить · 🔭 холодный — к сведению)*",
@@ -472,11 +472,11 @@ def build_recon_section(signals: list, decided: tuple | None = None) -> str:
         if benefit:
             lines.append(f"→ *Зачем*: {benefit}")
 
-    for s in urgent[:3]:
+    for s in urgent[:5]:
         _render_signal(s, "⚡")
-    for s in weekly[:3]:
+    for s in weekly[:5]:
         _render_signal(s, "📡")
-    for s in monthly[:2]:
+    for s in monthly[:3]:
         _render_signal(s, "🔭")
 
     return "\n".join(lines)
@@ -556,9 +556,11 @@ def build_ideas_section(signals: list, decided: tuple | None = None) -> str:
     # T-088: убираем сигналы, уже отслеживаемые через SURVEILLANCE-CONFIG
     relevant = [s for s in relevant
                 if not (get_triage(s.get("url", "")) or {}).get("already_tracked")]
-    # Убираем сигналы с urgency — они уже в секции Разведка
+    # Убираем только hot/warm сигналы — они в секции Разведка. Cold остаются в Новостях.
+    _recon_urgencies = {"hot", "warm", "now", "week"}
     relevant = [s for s in relevant
-                if not s.get("urgency") and not (get_triage(s.get("url", "")) or {}).get("urgency")]
+                if (s.get("urgency", "") not in _recon_urgencies
+                    and (get_triage(s.get("url", "")) or {}).get("urgency", "") not in _recon_urgencies)]
     if not relevant:
         return "### 📬 Новости\n*(нет новостей за 3 дня)*"
 
@@ -1408,17 +1410,22 @@ def main():
         print("⏭️ Выходной — брифинг не формируется")
         sys.exit(0)
 
+    # Брифинг создаётся независимо от дневной заметки
+    ag_signals  = []
+    cl_ideas    = load_recent(CLAUDE_FILE,  days=7, limit=500)
+    mkt_signals = load_recent(MARKET_FILE,  days=3, limit=1000)
+    write_briefing_note(datetime.now().date(), ag_signals, cl_ideas, mkt_signals)
+
     note = today_note_path()
-    if not note.exists():
-        print(f"Заметка не создана ещё: {note.name} — жду")
-        sys.exit(0)
-    inject(note)
-    # patch_stale_alerts(note)   # Алерты теперь в брифинге, не в дневной заметке (23.03.2026)
-    patch_empty_news(note)     # Патч пустых Новостей в брифинге (Mac мог заинжектировать раньше)
-    patch_stale_tasks(note)    # Патч устаревших Задач (Mac мог заинжектировать раньше)
-    patch_briefing_link(note)  # Ссылка на брифинг в конце ежедневной (если отсутствует)
-    run_proposal_agent()
-    inject_proposals(note)
+    if note.exists():
+        inject(note)
+        patch_empty_news(note)
+        patch_stale_tasks(note)
+        patch_briefing_link(note)
+        run_proposal_agent()
+        inject_proposals(note)
+    else:
+        print(f"Заметка не создана ещё: {note.name} — брифинг создан, инжекция ждёт")
 
 
 if __name__ == "__main__":

@@ -1,27 +1,25 @@
 #!/usr/bin/env python3
 """
-idea-triage.py — Idea Triage Agent.
+idea-triage.py — Idea Triage Agent (keyword-based).
 
 ПРИНЦИП: агент НЕ удаляет — только маркирует.
-         Идеи с low-confidence помечаются ⚠️ для человека.
          Все идеи попадают в брифинг — изменяется только порядок и метки.
 
-Читает: signals.jsonl, ideas.jsonl (последние 3 дня)
+Читает: signals.jsonl, ideas.jsonl (последние N дней)
         SURVEILLANCE-CONFIG.md (tracked topics для дедупликации)
 Пишет: feeds/triage-cache.jsonl  (url → {urgency, type, confidence})
 Запуск: cron 06:15 (после rss-collector 06:00, до daily-inject 06:30)
 
+v2: keyword-based вместо Ollama. Мгновенная обработка, без лимита батча.
+
 Urgency: hot | warm | cold
 Type:    инфра | клод | бизнес | знание | шум
-Confidence: high | low
+Confidence: high (детерминированные правила)
 """
 
 import json
 import re
-import time
 import fcntl
-import urllib.request
-import urllib.error
 from datetime import datetime, timedelta
 from pathlib import Path
 
@@ -39,32 +37,43 @@ _VAULT_CANDIDATES = [
 VAULT = next((p for p in _VAULT_CANDIDATES if (p / "Дни").exists()), _VAULT_CANDIDATES[0])
 SURVEILLANCE_CONFIG = VAULT / "AI" / "Claude Code" / "SURVEILLANCE-CONFIG.md"
 
-OLLAMA_URL   = "http://localhost:11434/api/generate"
-MODEL        = "mistral-nemo:12b"
-DAYS_BACK    = 3   # обрабатываем только свежие
-BATCH_SIZE   = 50  # максимум за один запуск
+DAYS_BACK = 3
 
-PROMPT_TEMPLATE = """Ты — фильтр идей для AI-агента. Оцени идею по трём осям.
+# --- Keyword sets for type classification ---
 
-ИДЕЯ:
-{text}
+_KW_CLAUDE = {
+    "claude", "agent", "llm", "gpt", "anthropic", "model", "prompt",
+    "fine-tun", "rlhf", "alignment", "reasoning", "агент", "модел",
+    "промпт", "safety", "autonomous", "автоном", "self-improv",
+    "mcp", "tool_use", "function_call", "claude-code", "cursor",
+    "copilot", "coding-agent", "agentic", "orchestr",
+}
 
-Ответь ТОЛЬКО JSON, без пояснений:
-{{
-  "urgency": "hot|warm|cold",
-  "type": "инфра|клод|бизнес|знание|шум",
-  "confidence": "high|low",
-  "reason": "одна фраза почему"
-}}
+_KW_INFRA = {
+    "api", "deploy", "infra", "docker", "kubernetes", "systemd",
+    "server", "pipeline", "gpu", "vram", "ollama", "comfyui",
+    "tailscale", "vpn", "ssh", "cron", "linux", "nginx",
+    "сервер", "деплой", "инфра", "контейнер",
+}
 
-Правила:
-- hot = нужно действовать на этой неделе
-- warm = полезно в течение месяца
-- cold = интересно но не срочно
-- шум = не применимо, общеизвестно или реклама
-- confidence=low если идея нетривиальная/специфическая и ты не уверен в оценке
-  (лучше пометить low, чем неверно отфильтровать ценную идею)
-"""
+_KW_BUSINESS = {
+    "business", "revenue", "startup", "funding", "market", "product",
+    "saas", "pricing", "monetiz", "income", "бизнес", "доход",
+    "продукт", "стартап", "монетиз", "заработ",
+}
+
+_KW_NOISE = {
+    "реклам", "подборк", "рейтинг", "топ-10", "top-10", "listicle",
+    "sponsored", "промо", "обзор лучших", "best of",
+}
+
+# Surveillance themes → hot urgency keywords (extracted from SURVEILLANCE-CONFIG)
+_KW_HOT = {
+    "персональн", "аватар", "multi-agent", "мульти-агент",
+    "persistent memory", "самообуч", "self-learn", "safety",
+    "claude code", "pkm", "obsidian", "local-first",
+    "income", "доход", "монетиз", "учёный",
+}
 
 
 def log(msg: str):
@@ -89,7 +98,7 @@ def load_triage_cache() -> dict:
 
 
 def load_tracked_topics() -> list[dict]:
-    """Парсит SURVEILLANCE-CONFIG.md → tracked topics с задачами (T-088)."""
+    """Парсит SURVEILLANCE-CONFIG.md → tracked topics с задачами."""
     if not SURVEILLANCE_CONFIG.exists():
         log(f"SURVEILLANCE-CONFIG не найден: {SURVEILLANCE_CONFIG}")
         return []
@@ -123,7 +132,6 @@ def is_already_tracked(item: dict, tracked: list[dict]) -> str | None:
         if not keywords:
             continue
         matches = sum(1 for kw in keywords if kw in text)
-        # 2+ совпадения, или 1 из 1 ключевого слова
         if matches >= 2 or (len(keywords) <= 2 and matches >= 1):
             return t["theme"]
     return None
@@ -151,57 +159,99 @@ def load_recent_items() -> list:
 
 
 def build_text(item: dict) -> str:
-    """Формирует текст для Ollama из полей записи."""
+    """Формирует текст для анализа из полей записи."""
     parts = []
     if item.get("topic"):
-        parts.append(f"Тема: {item['topic']}")
+        parts.append(item["topic"])
     if item.get("signal"):
-        parts.append(f"Сигнал: {item['signal']}")
+        parts.append(item["signal"])
     if item.get("pattern"):
-        parts.append(f"Паттерн: {item['pattern']}")
+        parts.append(item["pattern"])
     if item.get("insight"):
-        parts.append(f"Инсайт: {item['insight']}")
+        parts.append(item["insight"])
     if item.get("title_original"):
-        parts.append(f"Заголовок: {item['title_original']}")
-    return "\n".join(parts) or item.get("url", "")
+        parts.append(item["title_original"])
+    if item.get("action"):
+        parts.append(item["action"])
+    return " ".join(parts) or item.get("url", "")
 
 
-def ollama_triage(text: str) -> dict | None:
-    prompt = PROMPT_TEMPLATE.format(text=text[:800])  # limit context
-    payload = json.dumps({
-        "model": MODEL,
-        "prompt": prompt,
-        "stream": False,
-        "options": {"temperature": 0.1, "num_predict": 120},
-    }).encode()
+def _count_kw_hits(text: str, kw_set: set) -> int:
+    """Считает сколько ключевых слов из набора встречаются в тексте."""
+    return sum(1 for kw in kw_set if kw in text)
 
-    try:
-        req = urllib.request.Request(
-            OLLAMA_URL,
-            data=payload,
-            headers={"Content-Type": "application/json"},
-        )
-        with urllib.request.urlopen(req, timeout=30) as resp:
-            data = json.loads(resp.read())
-            raw = data.get("response", "").strip()
-            # Извлечь JSON из ответа
-            m = re.search(r"\{.*\}", raw, re.DOTALL)
-            if not m:
-                return None
-            result = json.loads(m.group())
-            # Валидация полей
-            if result.get("urgency") not in ("hot", "warm", "cold"):
-                result["urgency"] = "cold"
-            if result.get("confidence") not in ("high", "low"):
-                result["confidence"] = "low"
-            return result
-    except Exception as e:
-        log(f"Ollama error: {e}")
-        return None
+
+def keyword_triage(item: dict) -> dict:
+    """Классифицирует запись по keyword rules. Всегда возвращает результат."""
+    text = build_text(item).lower()
+    relevant = item.get("relevant_to_oleg", False)
+    has_action = bool(item.get("action") and item.get("why"))
+    feed = item.get("_feed", "?")
+
+    # --- Type ---
+    scores = {
+        "клод": _count_kw_hits(text, _KW_CLAUDE),
+        "инфра": _count_kw_hits(text, _KW_INFRA),
+        "бизнес": _count_kw_hits(text, _KW_BUSINESS),
+        "шум": _count_kw_hits(text, _KW_NOISE),
+    }
+    best_type = max(scores, key=scores.get)
+    if scores[best_type] == 0:
+        item_type = "знание"
+    elif best_type == "шум" and scores["шум"] >= 1:
+        item_type = "шум"
+    else:
+        item_type = best_type
+
+    # --- Urgency ---
+    hot_hits = _count_kw_hits(text, _KW_HOT)
+
+    if item_type == "шум":
+        urgency = "cold"
+        reason = "noise keywords"
+    elif hot_hits >= 2 and relevant:
+        urgency = "hot"
+        reason = f"surveillance match ({hot_hits} kw) + relevant"
+    elif hot_hits >= 3:
+        urgency = "hot"
+        reason = f"strong surveillance match ({hot_hits} kw)"
+    elif relevant and has_action and hot_hits >= 1:
+        urgency = "hot"
+        reason = "relevant + actionable + surveillance"
+    elif relevant and has_action:
+        urgency = "warm"
+        reason = "relevant + actionable"
+    elif feed == "ideas" and has_action:
+        urgency = "warm"
+        reason = "idea with action/why"
+    elif hot_hits >= 2:
+        urgency = "warm"
+        reason = f"surveillance match ({hot_hits} kw)"
+    else:
+        # relevant без action, ideas без action, всё остальное → cold
+        # cold попадает в Новости, не в Разведку
+        urgency = "cold"
+        reason = "relevant" if relevant else "no strong signals"
+
+    return {
+        "urgency": urgency,
+        "type": item_type,
+        "confidence": "high",
+        "reason": reason,
+    }
+
+
+def write_record(record: dict):
+    """Append record to triage cache with file lock."""
+    with open(TRIAGE_CACHE, "a", encoding="utf-8") as f:
+        fcntl.flock(f, fcntl.LOCK_EX)
+        f.write(json.dumps(record, ensure_ascii=False) + "\n")
+        f.flush()
+        fcntl.flock(f, fcntl.LOCK_UN)
 
 
 def main():
-    log("Запуск idea-triage")
+    log("Запуск idea-triage (keyword-based v2)")
     cache = load_triage_cache()
     items = load_recent_items()
     tracked = load_tracked_topics()
@@ -213,18 +263,15 @@ def main():
         log("Всё уже в кэше — выход")
         return
 
-    # Приоритет: relevant_to_oleg первыми (они попадут в брифинг)
-    relevant_first = sorted(new_items, key=lambda i: (0 if i.get("relevant_to_oleg") else 1))
-    to_process = relevant_first[:BATCH_SIZE]
     processed = 0
     skipped_tracked = 0
-    errors = 0
+    by_urgency = {"hot": 0, "warm": 0, "cold": 0}
 
-    for item in to_process:
-        # T-088: дедупликация по SURVEILLANCE-CONFIG
+    for item in new_items:
+        # Дедупликация по SURVEILLANCE-CONFIG
         tracked_theme = is_already_tracked(item, tracked)
         if tracked_theme:
-            record = {
+            write_record({
                 "url": item["url"],
                 "feed": item.get("_feed", "?"),
                 "ts_item": item.get("ts", ""),
@@ -234,50 +281,35 @@ def main():
                 "confidence": "high",
                 "reason": f"already tracked: {tracked_theme}",
                 "already_tracked": True,
-            }
-            with open(TRIAGE_CACHE, "a", encoding="utf-8") as f:
-                fcntl.flock(f, fcntl.LOCK_EX)
-                f.write(json.dumps(record, ensure_ascii=False) + "\n")
-                f.flush()
-                fcntl.flock(f, fcntl.LOCK_UN)
+            })
             skipped_tracked += 1
             continue
 
-        text = build_text(item)
-        result = ollama_triage(text)
-        if result is None:
-            # Если Ollama не ответил — помечаем low confidence warm
-            result = {"urgency": "warm", "type": "знание",
-                      "confidence": "low", "reason": "ollama timeout"}
-            errors += 1
+        result = keyword_triage(item)
 
         record = {
             "url": item["url"],
             "feed": item.get("_feed", "?"),
             "ts_item": item.get("ts", ""),
             "ts_triage": datetime.now().strftime("%Y-%m-%dT%H:%M:%S"),
-            "urgency": result.get("urgency", "cold"),
-            "type": result.get("type", "знание"),
-            "confidence": result.get("confidence", "low"),
-            "reason": result.get("reason", ""),
+            "urgency": result["urgency"],
+            "type": result["type"],
+            "confidence": result["confidence"],
+            "reason": result["reason"],
         }
-        with open(TRIAGE_CACHE, "a", encoding="utf-8") as f:
-            fcntl.flock(f, fcntl.LOCK_EX)
-            f.write(json.dumps(record, ensure_ascii=False) + "\n")
-            f.flush()
-            fcntl.flock(f, fcntl.LOCK_UN)
+        write_record(record)
+        by_urgency[result["urgency"]] = by_urgency.get(result["urgency"], 0) + 1
         processed += 1
-        time.sleep(0.3)  # не перегружать Ollama
 
-    log(f"Обработано: {processed}, tracked-skip: {skipped_tracked}, ошибок: {errors}")
+    log(f"Обработано: {processed}, tracked-skip: {skipped_tracked}")
+    log(f"Распределение: hot={by_urgency.get('hot',0)} warm={by_urgency.get('warm',0)} cold={by_urgency.get('cold',0)}")
 
     # Статистика кэша
     all_cache = load_triage_cache()
     hot = sum(1 for v in all_cache.values() if v.get("urgency") == "hot")
     warm = sum(1 for v in all_cache.values() if v.get("urgency") == "warm")
     cold = sum(1 for v in all_cache.values() if v.get("urgency") == "cold")
-    low_conf = sum(1 for v in all_cache.values() if v.get("confidence") == "low")
-    log(f"Кэш: {len(all_cache)} записей | hot={hot} warm={warm} cold={cold} low_conf={low_conf}")
+    log(f"Кэш итого: {len(all_cache)} записей | hot={hot} warm={warm} cold={cold}")
 
 
 if __name__ == "__main__":
