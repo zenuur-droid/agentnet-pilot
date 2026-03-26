@@ -1,25 +1,28 @@
 {
-  "reviewed_at": "2026-03-07T16:50:00",
-  "source": "https://github.com/affaan-m/everything-claude-code",
-  "review_notes": "Первый обзор. Реализовали на его основе: hooks (pre-compact, session-end, cost-tracker, session-start, suggest-compact).",
+  "reviewed_at": "2026-03-23T06:00:03",
+  "sources": [
+    "https://github.com/affaan-m/everything-claude-code",
+    "https://github.com/anthropics/claude-code",
+    "https://github.com/karpathy/autoresearch",
+    "https://github.com/karpathy/nanochat"
+  ],
+  "review_notes": "Авто-скан 2026-03-23: нет новых инсайтов",
   "insights": [
     {
-      "title": "Hooks как основа автономности",
-      "what": "everything-claude-code предлагает использовать lifecycle hooks (PreCompact, Stop, SessionStart) для автоматической персистенции контекста без ручного вмешательства.",
-      "why": "Мы это уже реализовали (KE-007). Следующий шаг — PostToolUse hook для логирования какие инструменты используются чаще всего.",
-      "priority": "P2"
+      "title": "Защита конфигурации",
+      "what": "Блокировка модификаций в файлах конфигураций линтеров/форматеров с помощью хуков.",
+      "why": "Предотвращает слабые конфигурации, которые могут быть изменены агентами для прохождения проверок вместо исправления исходного кода. Применимо для нашей системы с несколькими агентами Claude Code.",
+      "priority": "P1",
+      "commit_url": "https://github.com/affaan-m/everything-claude-code/commit/fdb10ba11624cb17f59aa2fbe14363039afe3ca8",
+      "repo": "affaan-m/everything-claude-code"
     },
     {
-      "title": "Memory как живой документ, не архив",
-      "what": "Рекомендация: MEMORY.md должен содержать только то что актуально СЕГОДНЯ. Всё остальное — в topic-файлы. Аудит раз в месяц.",
-      "why": "Наш MEMORY.md уже близко к 150 строкам (лимит). Нужен регулярный pruning — вынести детали в api-connection.md, amnezia-tailscale-fix.md.",
-      "priority": "P2"
-    },
-    {
-      "title": "Agent identity через ORCHESTRATOR pattern",
-      "what": "Паттерн: каждый агент при старте загружает идентичность из файла, а не держит её в системном промпте. Это позволяет менять роль агента без рестарта.",
-      "why": "У нас уже есть ORCHESTRATOR.md + SHARED-MEMORY.md. Можно добавить machine-specific identity files для Linux/Mac специализации.",
-      "priority": "P3"
+      "title": "Автоматическое измерение соблюдения правил",
+      "what": "Добавление нового навыка (skill) для визуализации соблюдения правил и определений агентов с помощью автогенерации сценариев и отчетов о соответствии.",
+      "why": "Позволяет проверить, следуют ли агенты нашим правилам и определениям, что важно для стабильной работы multi-agent системы.",
+      "priority": "P2",
+      "commit_url": "https://github.com/affaan-m/everything-claude-code/commit/a2e465c74dfb1887eb52a0ba3f4fe894bec96edb",
+      "repo": "affaan-m/everything-claude-code"
     }
   ]
 }

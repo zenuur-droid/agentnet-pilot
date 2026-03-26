@@ -407,6 +407,83 @@ def build_alerts_section() -> str | None:
     return "\n".join(lines)
 
 
+def _cluster_by_theme(items: list, key_field: str = "topic") -> list:
+    """Кластеризует сигналы по близости тем.
+
+    Группирует записи по URL-домену + keyword overlap (≥2 общих слов из topic/signal).
+    Возвращает список кластеров: [{"lead": item, "related": [items], "cluster_label": str}].
+    Одиночные записи → кластер из 1.
+    """
+    if not items:
+        return []
+
+    def _words(item):
+        text = f"{item.get(key_field, '')} {item.get('signal', '')} {item.get('insight', '')}"
+        return set(re.findall(r'[a-zA-Zа-яА-ЯёЁ]{3,}', text.lower()))
+
+    def _domain(item):
+        url = item.get("url", "")
+        m = re.search(r'https?://(?:www\.)?([^/]+)', url)
+        return m.group(1) if m else ""
+
+    assigned = [False] * len(items)
+    clusters = []
+
+    for i, item in enumerate(items):
+        if assigned[i]:
+            continue
+        assigned[i] = True
+        group = [item]
+        words_i = _words(item)
+        domain_i = _domain(item)
+
+        for j in range(i + 1, len(items)):
+            if assigned[j]:
+                continue
+            words_j = _words(items[j])
+            domain_j = _domain(items[j])
+            # Кластер: совпадение домена + ≥1 слово ИЛИ ≥3 общих слова
+            common = len(words_i & words_j)
+            same_domain = domain_i and domain_i == domain_j
+            if (same_domain and common >= 1) or common >= 3:
+                assigned[j] = True
+                group.append(items[j])
+
+        # Lead — с наивысшим urgency или первый
+        _urg_rank = {"now": 0, "hot": 0, "week": 1, "warm": 1, "month": 2, "cold": 2}
+        group.sort(key=lambda x: _urg_rank.get(x.get("urgency", ""), 9))
+        lead = group[0]
+        related = group[1:]
+        label = lead.get(key_field, lead.get("pattern", ""))
+        clusters.append({"lead": lead, "related": related, "cluster_label": label})
+
+    return clusters
+
+
+# --- Quality gate: отсеивает hollow/generic сигналы ---
+_HOLLOW_PHRASES = [
+    "может быть полезно", "может быть интересно", "может оказать влияние",
+    "предлагает инструменты", "предлагает практические", "предлагает новые методы",
+    "существуют инструменты", "продолжает развиваться", "растущий интерес",
+    "набирает популярность", "становится всё более", "открывает новые возможности",
+    "демонстрирует эффективность", "повышение понимания", "улучшение взаимодействия",
+    "является актуальной проблемой", "может увеличить", "может улучшить",
+    "улучшающие эффективность", "увеличение доверия",
+    "может повысить", "может снизить", "повышение производительности",
+    "улучшение пользовательского опыта", "интеграция современных",
+]
+
+
+def _is_hollow_signal(s: dict) -> bool:
+    """Сигнал без конкретного тезиса — generic filler.
+    Проверяет ТОЛЬКО текст signal на hollow phrases.
+    Не отсекает сигналы с конкретными action."""
+    sig = (s.get("signal", "") or "").lower()
+    return any(p in sig for p in _HOLLOW_PHRASES)
+
+    return clusters
+
+
 def _enrich_urgency(signals: list) -> list:
     """Обогащает сигналы urgency из triage-cache.
     Triage пишет hot/warm/cold → маппим в now/week/month для совместимости."""
@@ -453,39 +530,64 @@ def build_recon_section(signals: list, decided: tuple | None = None) -> str:
         return ("### 📡 Разведка\n"
                 "*(все сигналы — в секции Новости, triage не добавил urgency)*")
 
+    # Quality gate: cold без action или с hollow текстом не попадает в Разведку
+    # Hot/warm проходят всегда
+    triaged = [s for s in triaged
+               if s.get("urgency") != "month" or (s.get("action") and not _is_hollow_signal(s))]
+
     urgent  = [s for s in triaged if s.get("urgency") == "now"]
     weekly  = [s for s in triaged if s.get("urgency") == "week"]
     monthly = [s for s in triaged if s.get("urgency") == "month"]
 
-    shown = min(len(urgent), 5) + min(len(weekly), 5) + min(len(monthly), 3)
+    # Кластеризация по теме
+    all_ordered = urgent + weekly + monthly
+    clusters = _cluster_by_theme(all_ordered, key_field="topic") or []
+
+    # Лимит: до 10 кластеров
+    clusters = clusters[:10]
+    shown = len(clusters)
     lines = [
         f"### 📡 Разведка — {shown}/{len(triaged)}",
         "*(⚡ горячий — действовать · 📡 тёплый — мониторить · 🔭 холодный — к сведению)*",
+        "",
     ]
 
-    def _render_signal(s, icon):
-        dt = _sig_date(s)
+    def _urgency_icon(s):
+        u = s.get("urgency", "")
+        return {"now": "⚡", "week": "📡", "month": "🔭"}.get(u, "·")
+
+    def _render_cluster(cl, num):
+        lead = cl["lead"]
+        related = cl["related"]
+        icon = _urgency_icon(lead)
+        dt = _sig_date(lead)
         dt_pfx = f"({dt}) " if dt else ""
-        link = _sig_link(s)
-        topic = s.get("topic", s.get("impact", s.get("trend", "")))
-        signal_text = s.get("signal", s.get("idea", ""))
-        lines.append("")
-        lines.append(f"{icon} **{topic}** *{dt_pfx}{link}*")
+        link = _sig_link(lead)
+        topic = lead.get("topic", lead.get("impact", lead.get("trend", "")))
+        signal_text = lead.get("signal", lead.get("idea", ""))
+        count_suffix = f" (+{len(related)})" if related else ""
+        lines.append(f"{icon} **{num}. {topic}**{count_suffix} *{dt_pfx}{link}*")
         if signal_text:
             lines.append(f"→ *Что*: {signal_text}")
-        action = s.get("action", "")
-        benefit = s.get("benefit", "")
+        also_parts = []
+        for r in related[:2]:
+            r_link = _sig_link(r)
+            r_topic = r.get("topic", "")
+            if r_topic and r_topic != topic:
+                also_parts.append(f"{r_topic} {r_link}")
+        if also_parts:
+            lines.append(f"→ также: {' · '.join(also_parts)}")
+        action = lead.get("action", "")
+        benefit = lead.get("benefit", "")
         if action:
             lines.append(f"→ *Сделать*: {action}")
         if benefit:
             lines.append(f"→ *Зачем*: {benefit}")
 
-    for s in urgent[:5]:
-        _render_signal(s, "⚡")
-    for s in weekly[:5]:
-        _render_signal(s, "📡")
-    for s in monthly[:3]:
-        _render_signal(s, "🔭")
+    for idx, cl in enumerate(clusters, 1):
+        if idx > 1:
+            lines.append("")
+        _render_cluster(cl, idx)
 
     return "\n".join(lines)
 
@@ -507,14 +609,28 @@ def build_claude_section(ideas: list, decided: tuple | None = None) -> str:
         "coordination": 3, "reasoning": 4, "tools": 5, "cost": 6,
     }
 
-    # Дедупликация: один инсайт на паттерн (оставляем самый свежий)
+    # Фильтр нерелевантных (нет UI/фронтенда → design-system не нужна, и т.п.)
+    _IRRELEVANT_PATTERNS = {"design-system", "ui kit", "ui-kit", "фронтенд компонент"}
+    ideas = [i for i in ideas
+             if not any(p in i.get("pattern", "").lower() for p in _IRRELEVANT_PATTERNS)]
+
+    # Дедупликация: один инсайт на паттерн, плюс семантический dedup по keyword overlap
     seen_patterns: set[str] = set()
     deduped: list = []
     for idea in reversed(ideas):  # reversed → свежие первыми при dedup
         key = idea.get("pattern", "").lower().strip()[:40]
         if key and key not in seen_patterns:
-            seen_patterns.add(key)
-            deduped.append(idea)
+            # Семантический dedup: проверяем overlap слов с уже принятыми
+            words = set(re.findall(r'[a-zA-Z]{4,}', key))
+            is_dup = False
+            for existing_key in seen_patterns:
+                existing_words = set(re.findall(r'[a-zA-Z]{4,}', existing_key))
+                if len(words & existing_words) >= 2:
+                    is_dup = True
+                    break
+            if not is_dup:
+                seen_patterns.add(key)
+                deduped.append(idea)
     deduped.reverse()  # вернуть хронологический порядок
 
     # Приоритет: ideas с action/why выше (обогащённые полезнее при walkthrough)
@@ -536,16 +652,17 @@ def build_claude_section(ideas: list, decided: tuple | None = None) -> str:
             break
 
     shown_count = len(selected)
-    lines = [f"### 🧠 Развитие Клода — {shown_count}/{len(ideas)}"]
-    for idea in selected:
+    lines = [f"### 🧠 Развитие Клода — {shown_count}/{len(ideas)}", ""]
+    for num, idea in enumerate(selected, 1):
         pattern = idea.get("pattern", "")
         insight = idea.get("insight", "")
         cat     = idea.get("category", "")
-        lines.append("")
+        if num > 1:
+            lines.append("")
         dt = _sig_date(idea)
         dt_s = f" {dt}" if dt else ""
         link = _sig_link(idea)
-        lines.append(f"**{pattern}** *({cat}{dt_s})*")
+        lines.append(f"**{num}. {pattern}** *({cat}{dt_s})*")
         lines.append(insight)
         if link:
             lines.append(f"*{link}*")
@@ -578,36 +695,53 @@ def build_ideas_section(signals: list, decided: tuple | None = None) -> str:
     decided_urls, decided_topics = decided
     fresh = [s for s in relevant if not _signal_is_decided(s, decided_urls, decided_topics)]
 
-    # Сортируем: actionability (высокий первым), потом direction
+    # Фильтр generic/hollow сигналов (reuse _is_hollow из build_recon_section)
+    fresh = [s for s in fresh if not _is_hollow_signal(s)]
+
+    # Сортируем: has_action первым, потом actionability, потом direction
     dir_priority = {"новое": 0, "рост": 1, "зрелость": 2, "спад": 3}
     sorted_rel = sorted(fresh, key=lambda s: (
+        0 if s.get("action") else 1,
         -int(s.get("actionability", 1)),
         dir_priority.get(s.get("direction", ""), 9),
     ))
-    # Отсекаем пустые новости (actionability <= 2)
-    high_value = [s for s in sorted_rel if int(s.get("actionability", 1)) >= 3]
-    # Если мало ценных — добираем до 3 из остальных
+    # Только с action ИЛИ actionability >= 4 попадают в топ
+    high_value = [s for s in sorted_rel
+                  if s.get("action") or int(s.get("actionability", 1)) >= 4]
+    # Если мало — добираем из actionability >= 3
     if len(high_value) < 3:
-        rest = [s for s in sorted_rel if int(s.get("actionability", 1)) < 3]
-        shown_items = (high_value + rest)[:5]
-    else:
-        shown_items = high_value[:7]
-    lines = [f"### 📬 Новости — {len(shown_items)}/{len(relevant)}",
-             "*(⚡ горячий · 📡 тёплый · 🔭 холодный)*"]
-    for s in shown_items:
+        rest = [s for s in sorted_rel
+                if s not in high_value and int(s.get("actionability", 1)) >= 3]
+        high_value = (high_value + rest)
+    shown_items = high_value[:5]
+    # Кластеризация
+    clusters = _cluster_by_theme(shown_items, key_field="topic") or []
+    clusters = clusters[:5]
+    lines = [f"### 📬 Новости — {len(clusters)}/{len(relevant)}", ""]
+    for num, cl in enumerate(clusters, 1):
+        s = cl["lead"]
+        related = cl["related"]
         icon   = dir_icon.get(s.get("direction", ""), "·")
         topic  = s.get("topic", "")
         signal = s.get("signal", "")
         action = s.get("action", "")
-        act_score = s.get("actionability", "")
-        act_tag = f" [{act_score}]" if act_score else ""
         pfx    = triage_prefix(s.get("url", ""))
         dt     = _sig_date(s)
         dt_pfx = f"({dt}) " if dt else ""
         link   = _sig_link(s)
-        lines.append("")
-        lines.append(f"{icon} {pfx}**{topic}**{act_tag} *{dt_pfx}{link}*")
+        count_suffix = f" (+{len(related)})" if related else ""
+        if num > 1:
+            lines.append("")
+        lines.append(f"{icon} {pfx}**{num}. {topic}**{count_suffix} *{dt_pfx}{link}*")
         lines.append(f"→ *Что*: {signal}")
+        also_parts = []
+        for r in related[:2]:
+            r_link = _sig_link(r)
+            r_topic = r.get("topic", "")
+            if r_topic and r_topic != topic:
+                also_parts.append(f"{r_topic} {r_link}")
+        if also_parts:
+            lines.append(f"→ также: {' · '.join(also_parts)}")
         if action:
             lines.append(f"→ *Сделать*: {action}")
         benefit = s.get("benefit", "")
@@ -664,7 +798,7 @@ def build_ecc_insights_section() -> str | None:
         lines.append(f"*Источники: {src_links}*")
     lines.append("")
 
-    for ins in insights:
+    for num, ins in enumerate(insights, 1):
         title = ins.get("title", "")
         repo = ins.get("repo", "")
         commit_url = ins.get("commit_url", "")
@@ -672,19 +806,17 @@ def build_ecc_insights_section() -> str | None:
         why   = ins.get("why", "")
         prio  = ins.get("priority", "")
         p_tag = f" `{prio}`" if prio else ""
-        # Ссылка на коммит, если есть; иначе просто название
+        if num > 1:
+            lines.append("")
         if commit_url:
-            repo_short = repo.split("/")[-1] if repo else "commit"
-            lines.append(f"**[{title}]({commit_url})**{p_tag}")
+            lines.append(f"**{num}. [{title}]({commit_url})**{p_tag}")
         else:
-            lines.append(f"**{title}**{p_tag}")
+            lines.append(f"**{num}. {title}**{p_tag}")
         lines.append(f"→ *Что*: {what}")
         action = ins.get("action", "")
-        if action:
-            lines.append(f"→ *Сделать*: {action}")
-        if why:
-            lines.append(f"→ *Зачем*: {why}")
-        lines.append("")
+        # R-025: всегда Сделать/Зачем
+        lines.append(f"→ *Сделать*: {action}" if action else "→ *Сделать*: *(определить при walkthrough)*")
+        lines.append(f"→ *Зачем*: {why}" if why else "→ *Зачем*: *(определить при walkthrough)*")
 
     return "\n".join(lines)
 

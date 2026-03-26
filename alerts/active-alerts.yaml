@@ -1,65 +1,73 @@
-# SSoT активных алертов системы
-# Producer: ~/tasks/meta-analysis.py
-# Consumer: ~/agentnet-pilot/tools/daily-inject.py
-# CLI:      ~/agentnet-pilot/tools/alert-manager.py
-
-version: 1
-updated: '2026-03-06'
 alerts:
-- id: vault-pollution
-  title: Засорение 5_Люди посторонними файлами
-  category: repeat_problem
-  severity: P1
-  level: L1
-  status: resolved
-  first_seen: '2026-02-25'
-  last_seen: '2026-03-01'
-  occurrences: 5
+- category: repeat_problem
   dates:
   - '2026-02-25'
   - '2026-02-27'
   - '2026-03-01'
-  resolved_date: '2026-03-06'
-  resolved_by: 'oleg (проверил вручную: 43 файла, все корректны)'
-- id: api-unavailable
-  title: Недоступность Anthropic API / туннель
-  category: repeat_problem
-  severity: P1
-  level: L1
-  status: resolved
   first_seen: '2026-02-25'
-  last_seen: '2026-02-26'
-  occurrences: 3
+  id: vault-pollution
+  last_seen: '2026-03-01'
+  level: L1
+  occurrences: 5
+  resolved_by: 'oleg (проверил вручную: 43 файла, все корректны)'
+  resolved_date: '2026-03-06'
+  severity: P1
+  status: resolved
+  title: Засорение 5_Люди посторонними файлами
+- category: repeat_problem
   dates:
   - '2026-02-25'
   - '2026-02-26'
-  resolved_date: '2026-03-06'
-  resolved_by: 'oleg-linux (verify: API 404=OK, amn0 UP)'
-- id: git-rebase-vault
-  title: Использование git rebase (запрещено в vault)
-  category: repeat_problem
-  severity: P2
+  first_seen: '2026-02-25'
+  id: api-unavailable
+  last_seen: '2026-02-26'
   level: L1
+  occurrences: 3
+  resolved_by: 'oleg-linux (verify: API 404=OK, amn0 UP)'
+  resolved_date: '2026-03-06'
+  severity: P1
   status: resolved
-  first_seen: '2026-02-27'
-  last_seen: '2026-03-02'
-  occurrences: 2
+  title: Недоступность Anthropic API / туннель
+- category: repeat_problem
   dates:
   - '2026-02-27'
   - '2026-03-02'
-  resolved_date: '2026-03-06'
-  resolved_by: oleg-linux (INC-2026-0227 закрыт, coммит restore sync)
-- id: files-return-after-delete
-  title: Файлы возвращаются после удаления (git sync)
-  category: repeat_problem
-  severity: P1
+  first_seen: '2026-02-27'
+  id: git-rebase-vault
+  last_seen: '2026-03-02'
   level: L1
-  status: watching
-  first_seen: '2026-02-25'
-  last_seen: '2026-02-25'
   occurrences: 2
+  resolved_by: oleg-linux (INC-2026-0227 закрыт, coммит restore sync)
+  resolved_date: '2026-03-06'
+  severity: P2
+  status: resolved
+  title: Использование git rebase (запрещено в vault)
+- category: repeat_problem
   dates:
   - '2026-02-25'
-  resolved_date: null
-  resolved_by: null
+  first_seen: '2026-02-25'
+  id: files-return-after-delete
+  last_seen: '2026-02-25'
+  level: L1
   note: Нет новых случаев 10+ дней. Auto-close если не повторится до 2026-03-20
+  occurrences: 2
+  resolved_by: null
+  resolved_date: null
+  severity: P1
+  status: watching
+  title: Файлы возвращаются после удаления (git sync)
+- description: 'bedroom CSV: последняя запись 27 мин назад (лимит 20 мин); сервис
+    mqtt-health не активен; ORPHAN: mqtt_subscriber.py PID=3613188 не совпадает с
+    systemd PID='
+  fix_attempts: 2
+  id: HEALTH-MQTT-001
+  last_seen: 2026-03-25 17:12
+  occurrences: 341
+  resolved_at: 2026-03-25 17:27
+  resolved_by: 'False positive: mqtt_subscriber.py работает вне systemd (PID 6713,
+    2863024), данные поступают'
+  resolved_date: '2026-03-25'
+  severity: P2
+  status: resolved
+  title: 'Health MQTT: данные не поступают'
+version: 1
