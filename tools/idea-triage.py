@@ -67,6 +67,25 @@ _KW_NOISE = {
     "sponsored", "промо", "обзор лучших", "best of",
 }
 
+# Generic/hollow phrases in signal text → mark as noise
+_GENERIC_PHRASES = [
+    "может быть полезно",
+    "может быть интересно",
+    "может оказать влияние",
+    "предлагает инструменты",
+    "предлагает практические",
+    "предлагает новые методы",
+    "существуют инструменты",
+    "продолжает развиваться",
+    "растущий интерес",
+    "набирает популярность",
+    "становится всё более",
+    "открывает новые возможности",
+    "демонстрирует эффективность",
+    "повышение понимания",
+    "улучшение взаимодействия",
+]
+
 # Surveillance themes → hot urgency keywords (extracted from SURVEILLANCE-CONFIG)
 _KW_HOT = {
     "персональн", "аватар", "multi-agent", "мульти-агент",
@@ -188,6 +207,10 @@ def keyword_triage(item: dict) -> dict:
     has_action = bool(item.get("action") and item.get("why"))
     feed = item.get("_feed", "?")
 
+    # --- Generic signal detection ---
+    signal_text = (item.get("signal", "") or "").lower()
+    is_generic = any(phrase in signal_text for phrase in _GENERIC_PHRASES)
+
     # --- Type ---
     scores = {
         "клод": _count_kw_hits(text, _KW_CLAUDE),
@@ -196,7 +219,9 @@ def keyword_triage(item: dict) -> dict:
         "шум": _count_kw_hits(text, _KW_NOISE),
     }
     best_type = max(scores, key=scores.get)
-    if scores[best_type] == 0:
+    if is_generic and not has_action:
+        item_type = "шум"
+    elif scores[best_type] == 0:
         item_type = "знание"
     elif best_type == "шум" and scores["шум"] >= 1:
         item_type = "шум"
