@@ -72,11 +72,13 @@ def _sig_date(s: dict) -> str:
 
 
 def _sig_link(s: dict) -> str:
-    """Возвращает markdown-ссылку [source](url) или просто (source)."""
+    """Возвращает markdown-ссылку [source](url) или просто (source).
+    Очищает utm-параметры для чистоты отображения."""
     url = s.get("url", "")
     src = s.get("source", "")
     if url:
-        return f"[{src}]({url})"
+        clean = _normalize_url(url)
+        return f"[{src}]({clean})"
     return src
 
 
@@ -442,6 +444,12 @@ def build_recon_section(signals: list, decided: tuple | None = None) -> str:
         lines.append(f"{icon} **{topic}** *{dt_pfx}{link}*")
         if signal_text:
             lines.append(f"→ *Что*: {signal_text}")
+        action = s.get("action", "")
+        benefit = s.get("benefit", "")
+        if action:
+            lines.append(f"→ *Сделать*: {action}")
+        if benefit:
+            lines.append(f"→ *Зачем*: {benefit}")
 
     for s in urgent[:3]:
         _render_signal(s, "⚡")
@@ -602,7 +610,9 @@ def build_ecc_insights_section() -> str | None:
         try:
             text = existing_briefing.read_text(encoding="utf-8")
             if "Инсайты" in text:
-                return None  # Уже показаны в брифинге за дату скана
+                days_ago = (datetime.now().date() - reviewed.date()).days
+                return (f"### 🔭 ECC Инсайты\n"
+                        f"*(последний скан: {review_date_str}, {days_ago}д назад)*")
         except Exception:
             pass
 
