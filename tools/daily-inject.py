@@ -429,6 +429,18 @@ def build_recon_section(signals: list, decided: tuple | None = None) -> str:
 
     # Только сигналы с urgency (остальные пойдут в Новости)
     triaged = [s for s in signals if s.get("urgency")]
+
+    # Дедупликация по topic: один сигнал на topic (оставляем с наивысшим urgency)
+    _urg_rank = {"now": 0, "week": 1, "month": 2}
+    seen_topics: dict[str, int] = {}  # topic → best urgency rank
+    deduped: list = []
+    for s in sorted(triaged, key=lambda x: _urg_rank.get(x.get("urgency", ""), 9)):
+        topic_key = s.get("topic", "").lower().strip()[:30]
+        if topic_key and topic_key in seen_topics:
+            continue
+        seen_topics[topic_key] = _urg_rank.get(s.get("urgency", ""), 9)
+        deduped.append(s)
+    triaged = deduped
     if not triaged:
         return ("### 📡 Разведка\n"
                 "*(все сигналы — в секции Новости, triage не добавил urgency)*")
@@ -497,7 +509,11 @@ def build_claude_section(ideas: list, decided: tuple | None = None) -> str:
             deduped.append(idea)
     deduped.reverse()  # вернуть хронологический порядок
 
-    sorted_ideas = sorted(deduped, key=lambda i: cat_priority.get(i.get("category", ""), 9))
+    # Приоритет: ideas с action/why выше (обогащённые полезнее при walkthrough)
+    sorted_ideas = sorted(deduped, key=lambda i: (
+        0 if i.get("action") and i.get("why") else 1,
+        cat_priority.get(i.get("category", ""), 9),
+    ))
 
     # Отбираем MAX инсайтов с cap 2 на категорию для разнообразия
     MAX_PER_CAT = 2
