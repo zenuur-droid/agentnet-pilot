@@ -30,20 +30,22 @@ except ImportError:
     _YAML_OK = False
 
 # Vault path: Mac = ~/obsidian-backup, Linux = ~/obsidian-vault, Win = ~/obsidian
-# Проверяем по наличию папки Дни — признак рабочего worktree
-_VAULT_CANDIDATES = [
-    Path.home() / "obsidian-backup",   # Mac
-    Path.home() / "obsidian-vault",    # Linux
-    Path.home() / "obsidian",          # Laptop (Windows)
-]
-VAULT = next(
-    (p for p in _VAULT_CANDIDATES if (p / "Дни").exists()),
-    _VAULT_CANDIDATES[0]
-)
+# Linux имеет обе директории (backup — git repo, vault — worktree для Obsidian).
+# Inject должен писать туда, откуда Obsidian читает.
+import platform as _platform
+if _platform.system() == "Darwin":
+    VAULT = Path.home() / "obsidian-backup"
+elif (Path.home() / "obsidian-vault" / "Дни").exists():
+    VAULT = Path.home() / "obsidian-vault"
+elif (Path.home() / "obsidian").exists():
+    VAULT = Path.home() / "obsidian"
+else:
+    VAULT = Path.home() / "obsidian-backup"
 
 DAYS_DIR       = VAULT / "Дни"
 AGENTNET       = Path.home() / "agentnet-pilot"
-AG_PROJ_FILE   = AGENTNET / "feeds" / "agentnet-project" / "signals.jsonl"
+# AG_PROJ_FILE закрыт 23.03.2026 — AgentNet отключён (KE-BRIEF-001)
+# AG_PROJ_FILE   = AGENTNET / "feeds" / "agentnet-project" / "signals.jsonl"
 CLAUDE_FILE    = AGENTNET / "feeds" / "claude-ideas" / "ideas.jsonl"
 MARKET_FILE    = AGENTNET / "feeds" / "market-intel" / "signals.jsonl"
 TRIAGE_CACHE   = AGENTNET / "feeds" / "triage-cache.jsonl"
@@ -51,8 +53,31 @@ PENDING_HYPO   = VAULT / "AI" / "Claude Code" / "pending-claude-hypotheses.md"
 ALERTS_FILE    = AGENTNET / "alerts" / "active-alerts.yaml"
 TASKS_INDEX    = VAULT / "1_Задачи" / "Claude Code задачи.md"
 ECC_INSIGHTS   = AGENTNET / "feeds" / "ecc-insights" / "latest.json"
+RULES_EVAL     = AGENTNET / "feeds" / "rules-eval.jsonl"
+HARNESS_VIOLATIONS = Path.home() / "logs" / "harness-violations.jsonl"
 
 DOW_RU = {0: "пн", 1: "вт", 2: "ср", 3: "чт", 4: "пт", 5: "сб", 6: "вс"}
+
+
+def _sig_date(s: dict) -> str:
+    """Извлекает короткую дату из ts сигнала: '12.03'."""
+    ts = s.get("ts", "")
+    if not ts:
+        return ""
+    try:
+        dt = datetime.fromisoformat(ts)
+        return dt.strftime("%d.%m")
+    except Exception:
+        return ""
+
+
+def _sig_link(s: dict) -> str:
+    """Возвращает markdown-ссылку [source](url) или просто (source)."""
+    url = s.get("url", "")
+    src = s.get("source", "")
+    if url:
+        return f"[{src}]({url})"
+    return src
 
 
 def load_triage_cache() -> dict:
@@ -118,16 +143,88 @@ def load_recent(path: Path, days: int = 7, limit: int = 20) -> list:
     return records[-limit:]
 
 
+def get_machine_last_active(machine: str):
+    """Возвращает дату последнего лог-файла сессии для машины или None."""
+    machine_dir_map = {"linux": "Linux", "mac": "Mac", "laptop": "Laptop"}
+    dir_name = machine_dir_map.get(machine.lower())
+    if not dir_name:
+        return None
+    machine_log_dir = VAULT / "AI" / "Claude Code" / dir_name
+    if not machine_log_dir.exists():
+        return None
+    import re as _re
+    from datetime import date as _date
+    dates = []
+    for f in machine_log_dir.iterdir():
+        m = _re.match(r"(\d{4}-\d{2}-\d{2})\.md$", f.name)
+        if m:
+            try:
+                dates.append(_date.fromisoformat(m.group(1)))
+            except ValueError:
+                pass
+    return max(dates) if dates else None
+
+
+# Агент → русский алиас для отображения в брифинге
+AGENT_DISPLAY = {
+    "sysadmin-mac": "@админ-мак",
+    "sysadmin-linux": "@админ-линукс",
+    "sysadmin-laptop": "@админ-ноут",
+    "orchestrator": "@оркестратор",
+    "obsidian-vault-manager": "@хранитель",
+    "claudian": "@клодиан",
+    "matrix-knowledge-agent": "@матрица",
+    "book-downloader": "@книжник",
+    "source-crawler": "@поисковик",
+    "health": "@здоровяк",
+    "personalos-agent": "@память",
+    "market-intel": "@разведка",
+    "telegram-bot": "@бот",
+    "site-agent": "@сайт",
+    "briefing": "@брифинг",
+    "claude-dev": "@развитие",
+    "comfyui": "@художник",
+    "principles-auditor": "@аудитор",
+    # Алиасы машин → канонические агенты (R-028: assignee = агент, не машина)
+    "linux": "@админ-линукс",
+    "mac": "@админ-мак",
+    "laptop": "@админ-ноут",
+    "win": "@админ-ноут",
+}
+
+
+def _agent_display(assignee: str) -> str:
+    """Преобразует assignee в русский алиас для брифинга."""
+    if assignee in ("all", "", "human"):
+        return f"`{assignee}` " if assignee != "all" else ""
+    display = AGENT_DISPLAY.get(assignee, f"@{assignee}")
+    return f"`{display}` "
+
+
+def _escalation_tag(assignee: str, overdue_days: int, today) -> str:
+    """Метка для просроченных задач: 💤 спит (catch-up) или 🆘 эскалация (активна но не делает)."""
+    if assignee in ("all", "") or overdue_days < 2:
+        return ""
+    last_active = get_machine_last_active(assignee)
+    if last_active is None:
+        return ""
+    silence_days = (today - last_active).days
+    if silence_days >= 2:
+        # Машина спит — не эскалация, а ожидание catch-up
+        return f" 💤 *{assignee} спит {silence_days}д — catch-up при пробуждении*"
+    return ""
+
+
 def build_tasks_section() -> str | None:
     """Читает ВСЕ активные задачи из индекса (все исполнители).
     Группирует: просроченные → сегодня → ближайшие 3 дня.
     Пропускает секцию Выполненные.
-    Показывает исполнителя если не 'all'."""
+    Показывает исполнителя если не 'all'.
+    Добавляет метку эскалации если assignee молчит >= 2 дней."""
     if not TASKS_INDEX.exists():
         return None
 
     today = datetime.now().date()
-    upcoming_days = 3
 
     overdue, today_tasks, upcoming = [], [], []
 
@@ -148,7 +245,19 @@ def build_tasks_section() -> str | None:
         raw_date   = parts[0].strip()
         assignee   = parts[1].strip()
         recurrence = parts[2].strip()
-        title      = parts[3].strip().lstrip("[[").rstrip("]]").rstrip()
+        raw_title  = parts[3].strip()
+        # Сохраняем wikilink для кликабельности в Obsidian (R-021)
+        # Формат: [[T-NNN]] Название (номер кликабелен, название читаемо)
+        if raw_title.startswith("[[") and raw_title.endswith("]]"):
+            inner = raw_title[2:-2]
+        else:
+            inner = raw_title
+        import re as _re
+        t_match = _re.match(r"(T-\d{3})\s+(.*)", inner)
+        if t_match:
+            title = f"[[{t_match.group(1)}]] {t_match.group(2)}"
+        else:
+            title = f"[[{inner}]]"
 
         try:
             import datetime as dt
@@ -156,32 +265,41 @@ def build_tasks_section() -> str | None:
         except ValueError:
             continue
 
-        who = f"`{assignee}` " if assignee != "all" else ""
+        who = _agent_display(assignee)
         rec_tag = f" `{recurrence}`" if recurrence not in ("once", "none", "") else ""
-        item = (title, who, rec_tag, raw_date)
+        item = (title, who, rec_tag, raw_date, assignee)
 
         delta = (today - deadline).days
         if delta > 0:
             overdue.append((delta, item))
         elif delta == 0:
             today_tasks.append(item)
-        elif delta >= -upcoming_days:
+        elif delta >= -3:
+            # Ближайшие 3 дня — показываем в брифинге
             upcoming.append((-delta, item))
 
     if not overdue and not today_tasks and not upcoming:
         return None
 
     total = len(overdue) + len(today_tasks) + len(upcoming)
-    lines = [f"### 📋 Повестка дня — {total} задач"]
+    # Склонение: 1 задача, 2-4 задачи, 5+ задач
+    if total % 10 == 1 and total % 100 != 11:
+        word = "задача"
+    elif 2 <= total % 10 <= 4 and not (12 <= total % 100 <= 14):
+        word = "задачи"
+    else:
+        word = "задач"
+    lines = [f"### 📅 Задачи — {total} {word}"]
 
-    for days, (title, who, rec_tag, _) in sorted(overdue, reverse=True):
-        lines.append(f"- [ ] {who}**{title}**{rec_tag} ⚠️ просрочено {days}д")
+    for days, (title, who, rec_tag, raw_date, assignee) in sorted(overdue, reverse=True):
+        esc = _escalation_tag(assignee, days, today)
+        lines.append(f"- [ ] {who}{title}{rec_tag} = {raw_date} ⚠️ просрочено {days}д{esc}")
 
-    for title, who, rec_tag, _ in today_tasks:
-        lines.append(f"- [ ] {who}**{title}**{rec_tag} *(сегодня)*")
+    for title, who, rec_tag, raw_date, _a in today_tasks:
+        lines.append(f"- [ ] {who}{title}{rec_tag} = {raw_date} *(сегодня)*")
 
-    for days, (title, who, rec_tag, date) in sorted(upcoming):
-        lines.append(f"- [ ] {who}**{title}**{rec_tag} *(через {days}д — {date})*")
+    for days, (title, who, rec_tag, raw_date, _a) in sorted(upcoming):
+        lines.append(f"- [ ] {who}{title}{rec_tag} = {raw_date}")
 
     return "\n".join(lines)
 
@@ -270,48 +388,80 @@ def build_alerts_section() -> str | None:
     return "\n".join(lines)
 
 
-def build_agentnet_section(signals: list) -> str:
+def _enrich_urgency(signals: list) -> list:
+    """Обогащает сигналы urgency из triage-cache.
+    Triage пишет hot/warm/cold → маппим в now/week/month для совместимости."""
+    URGENCY_MAP = {"hot": "now", "warm": "week", "cold": "month"}
+    for s in signals:
+        if not s.get("urgency"):
+            t = get_triage(s.get("url", ""))
+            if t:
+                raw = t.get("urgency", "")
+                s["urgency"] = URGENCY_MAP.get(raw, raw)
+    return signals
+
+
+def build_recon_section(signals: list, decided: tuple | None = None) -> str:
+    """📡 Разведка — рыночные сигналы с urgency-маркировкой."""
     if not signals:
         return ("### 📡 Разведка\n"
                 "*(нет сигналов — появятся после следующего прогона в 06:00)*")
 
-    urgent  = [s for s in signals if s.get("urgency") == "now"]
-    weekly  = [s for s in signals if s.get("urgency") == "week"]
-    monthly = [s for s in signals if s.get("urgency") == "month"]
+    # Обогащаем urgency из triage-cache
+    signals = _enrich_urgency(signals)
 
-    lines = [f"### 📊 Тренды и идеи — {len(signals)} сигналов"]
+    # Дедупликация: убираем сигналы с решениями из прошлых брифингов
+    if decided is None:
+        decided = _load_decided_items()
+    decided_urls, decided_topics = decided
+    signals = [s for s in signals if not _signal_is_decided(s, decided_urls, decided_topics)]
+
+    # Только сигналы с urgency (остальные пойдут в Новости)
+    triaged = [s for s in signals if s.get("urgency")]
+    if not triaged:
+        return ("### 📡 Разведка\n"
+                "*(все сигналы — в секции Новости, triage не добавил urgency)*")
+
+    urgent  = [s for s in triaged if s.get("urgency") == "now"]
+    weekly  = [s for s in triaged if s.get("urgency") == "week"]
+    monthly = [s for s in triaged if s.get("urgency") == "month"]
+
+    shown = min(len(urgent), 3) + min(len(weekly), 3) + min(len(monthly), 2)
+    lines = [
+        f"### 📡 Разведка — {shown}/{len(triaged)}",
+        "*(⚡ горячий — действовать · 📡 тёплый — мониторить · 🔭 холодный — к сведению)*",
+    ]
+
+    def _render_signal(s, icon):
+        dt = _sig_date(s)
+        dt_pfx = f"({dt}) " if dt else ""
+        link = _sig_link(s)
+        topic = s.get("topic", s.get("impact", s.get("trend", "")))
+        signal_text = s.get("signal", s.get("idea", ""))
+        lines.append("")
+        lines.append(f"{icon} **{topic}** *{dt_pfx}{link}*")
+        if signal_text:
+            lines.append(f"→ *Что*: {signal_text}")
 
     for s in urgent[:3]:
-        lines.append("")
-        pfx = triage_prefix(s.get("url", ""))
-        lines.append(f"⚡ {pfx}{s.get('impact', '')}")
-        idea = s.get("idea", "")
-        if idea:
-            lines.append(f"→ {idea}  *({s.get('source', '')})*")
-        else:
-            lines.append(f"*({s.get('source', '')})*")
-
+        _render_signal(s, "⚡")
     for s in weekly[:3]:
-        lines.append("")
-        pfx = triage_prefix(s.get("url", ""))
-        lines.append(f"📡 {pfx}{s.get('trend', '')}")
-        idea = s.get("idea", "")
-        if idea:
-            lines.append(f"→ {idea}  *({s.get('source', '')})*")
-        else:
-            lines.append(f"*({s.get('source', '')})*")
-
+        _render_signal(s, "📡")
     for s in monthly[:2]:
-        lines.append("")
-        pfx = triage_prefix(s.get("url", ""))
-        lines.append(f"🔭 {pfx}{s.get('trend', '')}  *({s.get('source', '')})*")
+        _render_signal(s, "🔭")
 
     return "\n".join(lines)
 
 
-def build_claude_section(ideas: list) -> str:
+def build_claude_section(ideas: list, decided: tuple | None = None) -> str:
     if not ideas:
         return "### 💡 Клод\n*(нет инсайтов за неделю)*"
+
+    # Дедупликация: убираем идеи с решениями из прошлых брифингов
+    if decided is None:
+        decided = _load_decided_items()
+    decided_urls, decided_topics = decided
+    ideas = [i for i in ideas if not _signal_is_decided(i, decided_urls, decided_topics)]
 
     MAX = 7
     # Приоритет категорий: дефицитные важные — выше; cost последний (избыток)
@@ -345,44 +495,81 @@ def build_claude_section(ideas: list) -> str:
             break
 
     shown_count = len(selected)
-    lines = [f"### 🧠 Развитие Клода — топ-{shown_count} из {len(deduped)} уникальных ({len(ideas)} всего)"]
+    lines = [f"### 🧠 Развитие Клода — {shown_count}/{len(ideas)}"]
     for idea in selected:
         pattern = idea.get("pattern", "")
         insight = idea.get("insight", "")
         cat     = idea.get("category", "")
         lines.append("")
-        lines.append(f"**{pattern}** *({cat})*")
+        dt = _sig_date(idea)
+        dt_s = f" {dt}" if dt else ""
+        link = _sig_link(idea)
+        lines.append(f"**{pattern}** *({cat}{dt_s})*")
         lines.append(insight)
+        if link:
+            lines.append(f"*{link}*")
+        action = idea.get("action", "")
+        why = idea.get("why", "")
+        # R-025: всегда показываем Сделать/Зачем — если пусто, помечаем для walkthrough
+        lines.append(f"→ *Сделать*: {action}" if action else "→ *Сделать*: *(определить при walkthrough)*")
+        lines.append(f"→ *Зачем*: {why}" if why else "→ *Зачем*: *(определить при walkthrough)*")
 
     return "\n".join(lines)
 
 
-def build_ideas_section(signals: list) -> str:
+def build_ideas_section(signals: list, decided: tuple | None = None) -> str:
     dir_icon = {"рост": "↑", "новое": "★", "спад": "↓", "зрелость": "→"}
     relevant = [s for s in signals if s.get("relevant_to_oleg")]
+    # T-088: убираем сигналы, уже отслеживаемые через SURVEILLANCE-CONFIG
+    relevant = [s for s in relevant
+                if not (get_triage(s.get("url", "")) or {}).get("already_tracked")]
+    # Убираем сигналы с urgency — они уже в секции Разведка
+    relevant = [s for s in relevant
+                if not s.get("urgency") and not (get_triage(s.get("url", "")) or {}).get("urgency")]
     if not relevant:
         return "### 📬 Новости\n*(нет новостей за 3 дня)*"
 
-    # Сортируем по важности direction: новое > рост > зрелость > спад
+    # Дедупликация: убираем сигналы с решениями из прошлых брифингов
+    if decided is None:
+        decided = _load_decided_items()
+    decided_urls, decided_topics = decided
+    fresh = [s for s in relevant if not _signal_is_decided(s, decided_urls, decided_topics)]
+
+    # Сортируем: actionability (высокий первым), потом direction
     dir_priority = {"новое": 0, "рост": 1, "зрелость": 2, "спад": 3}
-    sorted_rel = sorted(relevant, key=lambda s: dir_priority.get(s.get("direction", ""), 9))
-    lines = [f"### 📬 Новости — {len(relevant)} релевантных"]
-    shown = 0
-    for s in sorted_rel:
-        if shown >= 7:
-            break
+    sorted_rel = sorted(fresh, key=lambda s: (
+        -int(s.get("actionability", 1)),
+        dir_priority.get(s.get("direction", ""), 9),
+    ))
+    # Отсекаем пустые новости (actionability <= 2)
+    high_value = [s for s in sorted_rel if int(s.get("actionability", 1)) >= 3]
+    # Если мало ценных — добираем до 3 из остальных
+    if len(high_value) < 3:
+        rest = [s for s in sorted_rel if int(s.get("actionability", 1)) < 3]
+        shown_items = (high_value + rest)[:5]
+    else:
+        shown_items = high_value[:7]
+    lines = [f"### 📬 Новости — {len(shown_items)}/{len(relevant)}",
+             "*(⚡ горячий · 📡 тёплый · 🔭 холодный)*"]
+    for s in shown_items:
         icon   = dir_icon.get(s.get("direction", ""), "·")
         topic  = s.get("topic", "")
         signal = s.get("signal", "")
         action = s.get("action", "")
-        src    = s.get("source", "")
+        act_score = s.get("actionability", "")
+        act_tag = f" [{act_score}]" if act_score else ""
         pfx    = triage_prefix(s.get("url", ""))
+        dt     = _sig_date(s)
+        dt_pfx = f"({dt}) " if dt else ""
+        link   = _sig_link(s)
         lines.append("")
-        lines.append(f"{icon} {pfx}**{topic}**  *({src})*")
-        lines.append(signal)
+        lines.append(f"{icon} {pfx}**{topic}**{act_tag} *{dt_pfx}{link}*")
+        lines.append(f"→ *Что*: {signal}")
         if action:
-            lines.append(f"→ {action}")
-        shown += 1
+            lines.append(f"→ *Сделать*: {action}")
+        benefit = s.get("benefit", "")
+        if benefit:
+            lines.append(f"→ *Зачем*: {benefit}")
 
     return "\n".join(lines)
 
@@ -390,9 +577,11 @@ def build_ideas_section(signals: list) -> str:
 def build_ecc_insights_section() -> str | None:
     """Читает ~/agentnet-pilot/feeds/ecc-insights/latest.json.
     Показывает инсайты из последнего обзора everything-claude-code.
-    Секция видна 35 дней после обзора — потом исчезает до следующего."""
+    Показывает ТОЛЬКО в день reviewed_at (первый брифинг после скана).
+    Если брифинг за эту дату уже существует — инсайты уже были показаны.
+    Если данных нет — placeholder (R-009)."""
     if not ECC_INSIGHTS.exists():
-        return None
+        return "### 🔭 ECC Инсайты\n*(нет данных — скан не запускался)*"
     try:
         data = json.loads(ECC_INSIGHTS.read_text(encoding="utf-8"))
     except Exception:
@@ -400,34 +589,63 @@ def build_ecc_insights_section() -> str | None:
 
     try:
         reviewed = datetime.fromisoformat(data.get("reviewed_at", ""))
-        if (datetime.now() - reviewed).days > 35:
-            return None  # Старый обзор — ждём следующего
     except Exception:
         return None
+
+    review_date_str = briefing_date_str(reviewed.date())
+    existing_briefing = BRIEFINGS_DIR / f"Брифинг {review_date_str}.md"
+
+    # Если брифинг за дату скана уже есть и содержит ECC секцию —
+    # инсайты уже были показаны, не дублировать
+    today_str = briefing_date_str(datetime.now().date())
+    if review_date_str != today_str and existing_briefing.exists():
+        try:
+            text = existing_briefing.read_text(encoding="utf-8")
+            if "Инсайты" in text:
+                return None  # Уже показаны в брифинге за дату скана
+        except Exception:
+            pass
 
     insights = data.get("insights", [])
     if not insights:
         return None
 
-    source = data.get("source", "")
+    # Поддержка старого формата (source) и нового (sources)
+    sources = data.get("sources", [])
+    if not sources:
+        s = data.get("source", "")
+        sources = [s] if s else []
     review_date = reviewed.strftime("%Y-%m-%d")
     notes = data.get("review_notes", "")
 
-    lines = [f"### 🔭 ECC Инсайты — обзор {review_date}"]
+    lines = [f"### 🔭 Инсайты — обзор {review_date}"]
     if notes:
         lines.append(f"*{notes}*")
-    lines.append(f"*Источник: {source}*")
+    if sources:
+        src_links = ", ".join(f"[{s.split('/')[-1]}]({s})" for s in sources)
+        lines.append(f"*Источники: {src_links}*")
     lines.append("")
 
     for ins in insights:
         title = ins.get("title", "")
+        repo = ins.get("repo", "")
+        commit_url = ins.get("commit_url", "")
         what  = ins.get("what", "")
         why   = ins.get("why", "")
         prio  = ins.get("priority", "")
         p_tag = f" `{prio}`" if prio else ""
-        lines.append(f"**{title}**{p_tag}")
+        # Ссылка на коммит, если есть; иначе просто название
+        if commit_url:
+            repo_short = repo.split("/")[-1] if repo else "commit"
+            lines.append(f"**[{title}]({commit_url})**{p_tag}")
+        else:
+            lines.append(f"**{title}**{p_tag}")
         lines.append(f"→ *Что*: {what}")
-        lines.append(f"→ *Зачем*: {why}")
+        action = ins.get("action", "")
+        if action:
+            lines.append(f"→ *Сделать*: {action}")
+        if why:
+            lines.append(f"→ *Зачем*: {why}")
         lines.append("")
 
     return "\n".join(lines)
@@ -442,6 +660,144 @@ def briefing_date_str(today=None) -> str:
 
 BRIEFINGS_DIR = VAULT / "Брифинги"
 
+
+def _load_decided_items(days: int = 14) -> tuple[set[str], set[str]]:
+    """Собирает URL и topic из прошлых брифингов, где есть *Решение*:.
+
+    Разбивает текст на блоки (по пустым строкам), берёт только блоки
+    содержащие *Решение*:. Из них извлекает:
+    - URL из markdown-ссылок [text](url)
+    - **bold topic** (Развитие Клода, Новости)
+    - текст после ⚡/📡/🔭 маркеров (Тренды)
+    """
+    decided_urls: set[str] = set()
+    decided_topics: set[str] = set()
+    today = datetime.now().date()
+    for i in range(1, days + 1):
+        d = today - timedelta(days=i)
+        path = BRIEFINGS_DIR / f"Брифинг {briefing_date_str(d)}.md"
+        if not path.exists():
+            continue
+        try:
+            text = path.read_text(encoding="utf-8")
+        except Exception:
+            continue
+        if "*Решение*:" not in text:
+            continue
+        # Разбиваем на блоки (пункты разделены пустыми строками)
+        blocks = re.split(r"\n\n+", text)
+        for block in blocks:
+            if "*Решение*:" not in block:
+                continue
+            # URL из markdown-ссылок (нормализация: убираем utm_* параметры)
+            for m in re.finditer(r"\]\((https?://[^)]+)\)", block):
+                decided_urls.add(_normalize_url(m.group(1)))
+            # **bold topic** (Развитие Клода, Новости)
+            for m in re.finditer(r"\*\*([^*]+)\*\*", block):
+                val = m.group(1).strip().lower()
+                if val and val != "решение":
+                    decided_topics.add(val)
+            # Тренды: текст после emoji-маркеров ⚡/📡/🔭
+            for m in re.finditer(
+                r"^(?:⚡|📡|🔭)\s*(?:🔴|🟡|⚪)?\s*(?:hot|warm|cold)?\s*(.+)$",
+                block, re.MULTILINE,
+            ):
+                val = m.group(1).strip().lower()
+                if len(val) > 15:
+                    decided_topics.add(val)
+    return decided_urls, decided_topics
+
+
+def _normalize_url(url: str) -> str:
+    """Убирает utm_* параметры из URL для дедупликации."""
+    from urllib.parse import urlparse, parse_qs, urlencode, urlunparse
+    parsed = urlparse(url)
+    params = {k: v for k, v in parse_qs(parsed.query).items() if not k.startswith("utm_")}
+    clean_query = urlencode(params, doseq=True)
+    return urlunparse(parsed._replace(query=clean_query))
+
+
+def _signal_is_decided(signal: dict, decided_urls: set[str], decided_topics: set[str]) -> bool:
+    """Проверяет, был ли сигнал уже рассмотрен в предыдущем брифинге."""
+    url = signal.get("url", "")
+    if url and _normalize_url(url) in decided_urls:
+        return True
+    for field in ("topic", "pattern", "impact", "trend"):
+        val = signal.get(field, "").strip().lower()
+        if val and val in decided_topics:
+            return True
+    return False
+
+
+def build_compliance_section() -> str | None:
+    """Секция соблюдения правил (только по вторникам).
+
+    Два источника:
+    1. harness-violations.jsonl — реальные нарушения из PostToolUse хука
+    2. rules-eval.jsonl — Ollama-оценки по метаданным сессий (дополнительно)
+    """
+    if datetime.now().weekday() != 1:  # 0=Mon, 1=Tue
+        return None
+
+    cutoff = (datetime.now() - timedelta(days=14)).strftime("%Y-%m-%d")
+
+    # --- Источник 1: harness-monitor (реальные данные) ---
+    harness_by_type: dict[str, int] = {}
+    harness_sessions: set[str] = set()
+    harness_total = 0
+    if HARNESS_VIOLATIONS.exists():
+        for line in HARNESS_VIOLATIONS.read_text(encoding="utf-8").splitlines():
+            try:
+                r = json.loads(line)
+                if r.get("ts", "")[:10] >= cutoff:
+                    for v in r.get("violations", []):
+                        harness_by_type[v] = harness_by_type.get(v, 0) + 1
+                        harness_total += 1
+                    harness_sessions.add(r.get("session_id", ""))
+            except Exception:
+                pass
+
+    # --- Источник 2: rules-evaluator (Ollama, метаданные) ---
+    ollama_violations: list[str] = []
+    if RULES_EVAL.exists():
+        for line in RULES_EVAL.read_text(encoding="utf-8").splitlines():
+            try:
+                r = json.loads(line)
+                if r.get("session_date", "") >= cutoff and r.get("violated") and r.get("confidence") == "high":
+                    ollama_violations.append(f"{r['rule_id']} {r.get('rule_title', '')}")
+            except Exception:
+                pass
+
+    if not harness_total and not ollama_violations:
+        return None
+
+    lines = [f"### 📏 Соблюдение правил — 14д ({len(harness_sessions)} сессий)"]
+    lines.append("")
+
+    # Harness (реальные нарушения)
+    if harness_by_type:
+        v_labels = {
+            "V1:question": "Вопрос-разрешение вместо действия",
+            "V3:variants": "Предложение вариантов вместо решения",
+            "V4:trailing_question": "Концовка-вопрос",
+            "V5:agent_simple_search": "Agent для простого поиска",
+        }
+        for vtype, count in sorted(harness_by_type.items(), key=lambda x: -x[1]):
+            if vtype == "V2:english":
+                continue  # отключён — 98% ложноположительных
+            label = v_labels.get(vtype, vtype)
+            lines.append(f"⚠️ **{vtype}** {label} — {count}×")
+        lines.append(f"\nИтого: **{harness_total}** нарушений за 14д")
+
+    # Ollama (дополнительно)
+    if ollama_violations:
+        lines.append("")
+        for v in ollama_violations:
+            lines.append(f"📊 Ollama: {v}")
+
+    return "\n".join(lines)
+
+
 def briefing_note_path(today=None) -> Path:
     if today is None:
         today = datetime.now().date()
@@ -454,33 +810,52 @@ def write_briefing_note(today, ag_signals: list, cl_ideas: list, mkt_signals: li
     path = briefing_note_path(today)
 
     tasks_section = build_tasks_section()
+    alerts_section = build_alerts_section()
     parts = [f"# Брифинг {briefing_date_str(today)}\n"]
+    if alerts_section:
+        parts += [alerts_section, "", "---", ""]
     if tasks_section:
         parts += [tasks_section, "", "---", ""]
+
+    compliance_section = build_compliance_section()
+    if compliance_section:
+        parts += [compliance_section, "", "---", ""]
 
     ecc_section = build_ecc_insights_section()
     if ecc_section:
         parts += [ecc_section, "", "---", ""]
 
-    # Анализ времени — только по вторникам (weekday() == 1)
+    # Анализ времени + Harness Health — только по вторникам (R-011, weekday() == 1)
     if datetime.now().weekday() == 1:
         time_section = build_time_analysis_section()
         if time_section:
             parts += [time_section, "", "---", ""]
+        harness_section = build_harness_health_section()
+        if harness_section:
+            parts += [harness_section, "", "---", ""]
 
+    # Один вызов дедупликации для всех секций (не 3 прохода по файлам)
+    decided = _load_decided_items()
+
+    # Разведка: market signals с urgency из triage-cache
     parts += [
-        build_agentnet_section(ag_signals),
+        build_recon_section(mkt_signals, decided),
         "",
         "---",
         "",
-        build_claude_section(cl_ideas),
+        build_claude_section(cl_ideas, decided),
         "",
         "---",
         "",
-        build_ideas_section(mkt_signals),
+        build_ideas_section(mkt_signals, decided),
         "",
     ]
 
+    if path.exists():
+        # Файл уже существует — НЕ перезаписываем (INC-007: решения walkthrough затирались).
+        # Обновляем только секцию задач через patch_stale_tasks().
+        print(f"⏭️ Брифинг уже существует: {path.name} — пропуск перезаписи")
+        return
     path.write_text("\n".join(parts), encoding="utf-8")
     print(f"✅ Брифинг создан: {path.name}")
 
@@ -491,8 +866,9 @@ def inject(note_path: Path):
     briefing_name = f"Брифинг {briefing_date_str(today)}"
     briefing_link = f"[[{briefing_name}]]"
 
-    # Читаем данные из agentnet (нужны всегда — для брифинга)
-    ag_signals  = load_recent(AG_PROJ_FILE, days=7)
+    # Читаем данные для брифинга
+    # ag_signals закрыт 23.03.2026 — AgentNet отключён (KE-BRIEF-001)
+    ag_signals  = []
     cl_ideas    = load_recent(CLAUDE_FILE,  days=7, limit=500)
     mkt_signals = load_recent(MARKET_FILE,  days=3, limit=1000)
 
@@ -511,21 +887,8 @@ def inject(note_path: Path):
         print(f"Уже инжектировано: {note_path.name}")
         return
 
-    # В ежедневную заметку — только алерты (задачи теперь в брифинге)
-    alerts_section = build_alerts_section()
-
-    parts = []
-    if alerts_section:
-        parts += [
-            "<!-- alerts-start -->",
-            alerts_section,
-            "<!-- alerts-end -->",
-            "",
-            "---",
-            "",
-        ]
-
-    block = "\n".join(parts)
+    # Алерты теперь в брифинге, не в дневной заметке (23.03.2026)
+    block = ""
 
     # Вставляем перед первым --- (разделитель после погоды)
     sep_idx = text.find("\n---")
@@ -544,30 +907,7 @@ def inject(note_path: Path):
           f"Клод: {len(cl_ideas)} инсайтов | "
           f"Идеи: {len([s for s in mkt_signals if s.get('relevant_to_oleg')])} новых")
 
-    # Git push (SSH ключ как в obsidian-sync.sh)
-    env = os.environ.copy()
-    env["GIT_SSH_COMMAND"] = (
-        "ssh -i /Users/user/.ssh/github_ed25519 -o StrictHostKeyChecking=no"
-    )
-    try:
-        briefing_rel = str(briefing_note_path(today).relative_to(VAULT))
-        daily_rel    = str(note_path.relative_to(VAULT))
-        subprocess.run(
-            ["git", "-C", str(VAULT), "add", daily_rel, briefing_rel],
-            capture_output=True, timeout=15, env=env
-        )
-        r = subprocess.run(
-            ["git", "-C", str(VAULT), "commit", "-m",
-             f"daily inject: AI-блок {today}"],
-            capture_output=True, timeout=15, env=env
-        )
-        if b"nothing to commit" not in r.stdout:
-            subprocess.run(
-                ["git", "-C", str(VAULT), "push"],
-                capture_output=True, timeout=30, env=env
-            )
-    except Exception as e:
-        print(f"  [git] {e}")
+    # Git: НЕ делаем здесь. obsidian-sync.sh подхватит через rsync vault→backup.
 
 
 def build_proposals_section() -> str | None:
@@ -643,27 +983,94 @@ def inject_proposals(note_path: Path):
     note_path.write_text(new_text, encoding="utf-8")
     print(f"✅ Предложения добавлены в {note_path.name} ({len(proposals_count(section))} шт.)")
 
-    # Git push
-    env = os.environ.copy()
-    env["GIT_SSH_COMMAND"] = (
-        "ssh -i /Users/user/.ssh/github_ed25519 -o StrictHostKeyChecking=no"
-    )
-    try:
-        rel = str(note_path.relative_to(VAULT))
-        subprocess.run(["git", "-C", str(VAULT), "add", rel],
-                       capture_output=True, timeout=15, env=env)
-        r = subprocess.run(["git", "-C", str(VAULT), "commit", "-m",
-                            f"daily inject: предложения {today}"],
-                           capture_output=True, timeout=15, env=env)
-        if b"nothing to commit" not in r.stdout:
-            subprocess.run(["git", "-C", str(VAULT), "push"],
-                           capture_output=True, timeout=30, env=env)
-    except Exception as e:
-        print(f"  [git proposals] {e}")
+    # Git: НЕ делаем здесь. obsidian-sync.sh подхватит через rsync vault→backup.
 
 
 def proposals_count(section: str) -> list:
     return re.findall(r"^- \[ \]", section, flags=re.MULTILINE)
+
+
+HARNESS_TOOLS = Path.home() / "AI" / "tools"
+HOOKS_LOG = Path.home() / "logs" / "hooks.log"
+HARNESS_SUMMARY = Path.home() / ".claude" / "harness-summary.json"
+
+
+def build_harness_health_section() -> str | None:
+    """Запускает evaluators и собирает метрики harness'а. R-011: только по вторникам."""
+    if datetime.now().weekday() != 1:  # 0=пн, 1=вт
+        return None
+    lines = ["### 🛡️ Harness Health", ""]
+    lines.append("| Pipeline | Score | Проблема |")
+    lines.append("|----------|-------|----------|")
+
+    # Cascade evaluator
+    cascade_eval = HARNESS_TOOLS / "pattern-evaluate.py"
+    if cascade_eval.exists():
+        try:
+            r = subprocess.run(
+                [sys.executable, str(cascade_eval)],
+                capture_output=True, text=True, timeout=60
+            )
+            score = "?"
+            issues = []
+            for line in r.stdout.splitlines():
+                if "overall_health_score=" in line:
+                    score = line.split("=")[1]
+                elif line.strip().startswith("WARN:") or line.strip().startswith("CRITICAL:"):
+                    issues.append(line.strip()[:60])
+            issue_str = "; ".join(issues[:2]) if issues else "—"
+            lines.append(f"| Cascade | {score}/100 | {issue_str} |")
+        except Exception:
+            lines.append("| Cascade | err | timeout |")
+
+    # RSS evaluator
+    rss_eval = HARNESS_TOOLS / "rss-evaluate.py"
+    if rss_eval.exists():
+        try:
+            r = subprocess.run(
+                [sys.executable, str(rss_eval)],
+                capture_output=True, text=True, timeout=60
+            )
+            score = "?"
+            issues = []
+            for line in r.stdout.splitlines():
+                if "overall_health_score=" in line:
+                    score = line.split("=")[1]
+                elif line.strip().startswith("Only ") or line.strip().startswith("Low ") or line.strip().startswith("Noise ") or line.strip().startswith("Stale") or line.strip().startswith("Triage"):
+                    issues.append(line.strip()[:60])
+            issue_str = "; ".join(issues[:2]) if issues else "—"
+            lines.append(f"| RSS | {score}/100 | {issue_str} |")
+        except Exception:
+            lines.append("| RSS | err | timeout |")
+
+    # Gate blocks (last 7 days from hooks.log)
+    blocks_7d = 0
+    if HOOKS_LOG.exists():
+        cutoff = datetime.now() - timedelta(days=7)
+        try:
+            for log_line in HOOKS_LOG.read_text(encoding="utf-8").splitlines():
+                if "BLOCKED" in log_line and log_line[:19].strip():
+                    try:
+                        log_dt = datetime.strptime(log_line[:19], "%Y-%m-%d %H:%M:%S")
+                        if log_dt >= cutoff:
+                            blocks_7d += 1
+                    except ValueError:
+                        pass
+        except Exception:
+            pass
+    lines.append(f"| Gate | {blocks_7d} блокировок/7д | — |")
+
+    # Language violations (from harness-summary.json)
+    lang_violations = "?"
+    if HARNESS_SUMMARY.exists():
+        try:
+            hs = json.loads(HARNESS_SUMMARY.read_text(encoding="utf-8"))
+            lang_violations = hs.get("total_violations", "?")
+        except Exception:
+            pass
+    lines.append(f"| Язык | {lang_violations} нарушений | — |")
+
+    return "\n".join(lines)
 
 
 TIME_REPORT = Path.home() / "AI/tools/time-analyst/latest-report.json"
@@ -677,7 +1084,10 @@ TARGETS = {
 
 
 def build_time_analysis_section() -> str | None:
-    """Читает latest-report.json и формирует markdown-блок анализа времени."""
+    """Читает latest-report.json и формирует markdown-блок анализа времени.
+    R-011: показывается ТОЛЬКО по вторникам."""
+    if datetime.now().weekday() != 1:  # 0=пн, 1=вт
+        return None
     if not TIME_REPORT.exists():
         return None
     try:
@@ -784,12 +1194,26 @@ def patch_stale_tasks(note_path: Path):
     if not briefing_path.exists():
         return
     text = briefing_path.read_text(encoding="utf-8")
-    # Ищем существующий блок задач
-    m = re.search(r"(### 📅 Задачи[^\n]*\n(?:.*\n)*?)(?=\n---|\Z)", text)
+    # Ищем существующий блок задач (все варианты названий)
+    m = re.search(r"(### (?:📋 (?:Повестка дня|Задачи)|📅 Задачи)[^\n]*\n(?:.*\n)*?)(?=\n---|\Z)", text)
     if not m:
-        return  # Блока задач нет — inject сам разберётся
+        # Блока задач нет — вставим перед первой секцией (после заголовка)
+        fresh_block = build_tasks_section()
+        if fresh_block:
+            header_end = text.index("\n", text.index("# Брифинг")) + 1
+            new_text = text[:header_end] + "\n" + fresh_block + "\n\n---\n" + text[header_end:]
+            briefing_path.write_text(new_text, encoding="utf-8")
+            print(f"✅ [patch] Задачи добавлены в брифинг")
+        return
 
     current_block = m.group(1).rstrip()
+
+    # Если в блоке есть решения walkthrough (→ *Решение*:) — НЕ трогать.
+    # Решения записываются пользователем и агентом при разборе брифинга.
+    # patch_stale_tasks не имеет права их затирать.
+    if "→ *Решение*:" in current_block or "→ *решение*:" in current_block.lower():
+        return
+
     fresh_block = build_tasks_section()
     if fresh_block is None:
         fresh_block = ""
@@ -797,7 +1221,7 @@ def patch_stale_tasks(note_path: Path):
     if fresh_block.rstrip() == current_block:
         return  # Актуально, не трогаем
 
-    new_text = text[:m.start()] + fresh_block + text[m.end():]
+    new_text = text[:m.start()] + fresh_block + "\n" + text[m.end():]
     briefing_path.write_text(new_text, encoding="utf-8")
     print(f"✅ [patch] Задачи обновлены в брифинге")
 
@@ -882,7 +1306,53 @@ def sync_tasks_index():
         print(f"[sync-tasks] skip: {e}")
 
 
+def validate_premises() -> list[str]:
+    """Принцип 18: проверить предположения ДО работы.
+    Возвращает список проблем (пустой = всё ок)."""
+    issues = []
+    # 1. Vault существует и содержит Дни/
+    if not DAYS_DIR.exists():
+        issues.append(f"DAYS_DIR не существует: {DAYS_DIR}")
+    # 2. agentnet-pilot доступен
+    if not AGENTNET.exists():
+        issues.append(f"AGENTNET не существует: {AGENTNET}")
+    # 3. Критические файлы данных
+    for label, p in [("ALERTS_FILE", ALERTS_FILE),
+                     ("TASKS_INDEX", TASKS_INDEX)]:
+        if not p.exists():
+            issues.append(f"{label} не существует: {p}")
+    # 4. YAML доступен (нужен для алертов)
+    if not _YAML_OK:
+        issues.append("PyYAML не установлен — секция алертов будет пустой")
+    # 5. F-037 lint: ссылки на локальную память в активных файлах vault
+    f037_dirs = [
+        VAULT / "AI" / "Claude Code" / "Skills",
+        VAULT / "AI" / "Claude Code" / "AGENT-MEMORY",
+    ]
+    f037_pattern = ".claude/projects"
+    f037_exclude = {"chats", "chat-digest.md", "Memory-FROZEN"}
+    for d in f037_dirs:
+        if not d.exists():
+            continue
+        for md in d.rglob("*.md"):
+            if any(ex in str(md) for ex in f037_exclude):
+                continue
+            try:
+                for line in md.read_text(errors="replace").splitlines():
+                    if f037_pattern in line and not any(w in line.upper() for w in ("НЕ ИСПОЛЬЗ", "ЗАПРЕЩЕНО", "НЕ ЧИТАТЬ")):
+                        issues.append(f"F-037: локальная память в {md.name}")
+                        break
+            except Exception:
+                pass
+    return issues
+
+
 def main():
+    # Принцип 18: premise validation
+    issues = validate_premises()
+    for issue in issues:
+        print(f"[premise] ⚠️ {issue}")
+
     # Синхронизируем agentnet-pilot перед чтением фидов
     # Без этого Mac/Laptop читают устаревшие сигналы и блок Новости пустой
     try:
@@ -898,12 +1368,17 @@ def main():
     # Обновляем индекс задач (KE-008: без этого done-задачи попадают в блок Активных)
     sync_tasks_index()
 
+    # Выходные — без брифинга (сб=5, вс=6)
+    if datetime.now().weekday() in (5, 6):
+        print("⏭️ Выходной — брифинг не формируется")
+        sys.exit(0)
+
     note = today_note_path()
     if not note.exists():
         print(f"Заметка не создана ещё: {note.name} — жду")
         sys.exit(0)
     inject(note)
-    patch_stale_alerts(note)   # Патч алертов из SSoT (Mac мог показать resolved алерты)
+    # patch_stale_alerts(note)   # Алерты теперь в брифинге, не в дневной заметке (23.03.2026)
     patch_empty_news(note)     # Патч пустых Новостей в брифинге (Mac мог заинжектировать раньше)
     patch_stale_tasks(note)    # Патч устаревших Задач (Mac мог заинжектировать раньше)
     patch_briefing_link(note)  # Ссылка на брифинг в конце ежедневной (если отсутствует)
