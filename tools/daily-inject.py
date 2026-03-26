@@ -293,15 +293,24 @@ def build_tasks_section() -> str | None:
         word = "задач"
     lines = [f"### 📅 Задачи — {total} {word}"]
 
+    def _fmt_date(iso_date: str) -> str:
+        """2026-03-26 → 26.03.26"""
+        try:
+            from datetime import date
+            d = date.fromisoformat(iso_date)
+            return d.strftime("%d.%m.%y")
+        except Exception:
+            return iso_date
+
     for days, (title, who, rec_tag, raw_date, assignee) in sorted(overdue, reverse=True):
         esc = _escalation_tag(assignee, days, today)
-        lines.append(f"- [ ] {who}{title}{rec_tag} = {raw_date} ⚠️ просрочено {days}д{esc}")
+        lines.append(f"- [ ] {who}{title}{rec_tag} = {_fmt_date(raw_date)} ⚠️ просрочено {days}д{esc}")
 
     for title, who, rec_tag, raw_date, _a in today_tasks:
-        lines.append(f"- [ ] {who}{title}{rec_tag} = {raw_date} *(сегодня)*")
+        lines.append(f"- [ ] {who}{title}{rec_tag} = {_fmt_date(raw_date)} *(сегодня)*")
 
     for days, (title, who, rec_tag, raw_date, _a) in sorted(upcoming):
-        lines.append(f"- [ ] {who}{title}{rec_tag} = {raw_date}")
+        lines.append(f"- [ ] {who}{title}{rec_tag} = {_fmt_date(raw_date)}")
 
     return "\n".join(lines)
 
