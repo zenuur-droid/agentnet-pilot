@@ -83,14 +83,22 @@ def _sig_link(s: dict) -> str:
 
 
 def load_triage_cache() -> dict:
-    """url → triage dict. Возвращает {} если файла нет."""
+    """url → triage dict. При дубликатах оставляем запись с наивысшим urgency."""
+    _urg_rank = {"hot": 0, "warm": 1, "cold": 2}
     cache = {}
     if not TRIAGE_CACHE.exists():
         return cache
     for line in TRIAGE_CACHE.read_text(encoding="utf-8").splitlines():
         try:
             r = json.loads(line)
-            cache[r["url"]] = r
+            url = r["url"]
+            if url in cache:
+                old_rank = _urg_rank.get(cache[url].get("urgency", ""), 9)
+                new_rank = _urg_rank.get(r.get("urgency", ""), 9)
+                if new_rank < old_rank:
+                    cache[url] = r
+            else:
+                cache[url] = r
         except Exception:
             pass
     return cache
@@ -630,18 +638,11 @@ def build_ecc_insights_section() -> str | None:
     review_date_str = briefing_date_str(reviewed.date())
     existing_briefing = BRIEFINGS_DIR / f"Брифинг {review_date_str}.md"
 
-    # Если брифинг за дату скана уже есть и содержит ECC секцию —
-    # инсайты уже были показаны, не дублировать
-    today_str = briefing_date_str(datetime.now().date())
-    if review_date_str != today_str and existing_briefing.exists():
-        try:
-            text = existing_briefing.read_text(encoding="utf-8")
-            if "Инсайты" in text:
-                days_ago = (datetime.now().date() - reviewed.date()).days
-                return (f"### 🔭 ECC Инсайты\n"
-                        f"*(последний скан: {review_date_str}, {days_ago}д назад)*")
-        except Exception:
-            pass
+    # Показываем инсайты если скан не старше 7 дней
+    days_ago = (datetime.now().date() - reviewed.date()).days
+    if days_ago > 7:
+        return (f"### 🔭 ECC Инсайты\n"
+                f"*(последний скан: {review_date_str}, {days_ago}д назад — устарел)*")
 
     insights = data.get("insights", [])
     if not insights:
