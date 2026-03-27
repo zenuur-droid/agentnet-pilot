@@ -1,145 +1,145 @@
 {
-  "generated_at": "2026-03-26T03:05:01.283368",
+  "generated_at": "2026-03-27T03:05:01.933086",
   "week": "2026-W13",
   "prev_week": "2026-W12",
-  "curr_signals_count": 406,
+  "curr_signals_count": 501,
   "prev_signals_count": 300,
   "rising": [
     {
       "term": "control",
-      "curr": 61,
+      "curr": 68,
       "prev": 5,
-      "pct_change": 1120,
-      "label": "+1120%"
+      "pct_change": 1260,
+      "label": "+1260%"
     },
     {
       "term": "может",
-      "curr": 58,
+      "curr": 60,
       "prev": 12,
-      "pct_change": 383,
-      "label": "+383%"
-    },
-    {
-      "term": "version",
-      "curr": 52,
-      "prev": 3,
-      "pct_change": 1633,
-      "label": "+1633%"
+      "pct_change": 400,
+      "label": "+400%"
     },
     {
       "term": "ink",
-      "curr": 47,
+      "curr": 54,
       "prev": 0,
       "pct_change": null,
       "label": "NEW"
     },
     {
-      "term": "version control",
-      "curr": 44,
+      "term": "version",
+      "curr": 53,
       "prev": 3,
-      "pct_change": 1367,
-      "label": "+1367%"
+      "pct_change": 1667,
+      "label": "+1667%"
     },
     {
       "term": "tech",
-      "curr": 42,
+      "curr": 48,
       "prev": 19,
-      "pct_change": 121,
-      "label": "+121%"
-    },
-    {
-      "term": "safety",
-      "curr": 39,
-      "prev": 22,
-      "pct_change": 77,
-      "label": "+77%"
-    },
-    {
-      "term": "статья",
-      "curr": 36,
-      "prev": 7,
-      "pct_change": 414,
-      "label": "+414%"
+      "pct_change": 153,
+      "label": "+153%"
     },
     {
       "term": "code",
-      "curr": 31,
+      "curr": 45,
       "prev": 18,
-      "pct_change": 72,
-      "label": "+72%"
+      "pct_change": 150,
+      "label": "+150%"
     },
     {
-      "term": "инструменты",
-      "curr": 28,
-      "prev": 10,
-      "pct_change": 180,
-      "label": "+180%"
+      "term": "safety",
+      "curr": 45,
+      "prev": 22,
+      "pct_change": 105,
+      "label": "+105%"
     },
     {
-      "term": "данных",
-      "curr": 28,
-      "prev": 13,
-      "pct_change": 115,
-      "label": "+115%"
+      "term": "version control",
+      "curr": 45,
+      "prev": 3,
+      "pct_change": 1400,
+      "label": "+1400%"
+    },
+    {
+      "term": "агентов",
+      "curr": 44,
+      "prev": 27,
+      "pct_change": 63,
+      "label": "+63%"
+    },
+    {
+      "term": "data",
+      "curr": 43,
+      "prev": 19,
+      "pct_change": 126,
+      "label": "+126%"
+    },
+    {
+      "term": "растёт",
+      "curr": 37,
+      "prev": 22,
+      "pct_change": 68,
+      "label": "+68%"
+    },
+    {
+      "term": "статья",
+      "curr": 37,
+      "prev": 7,
+      "pct_change": 429,
+      "label": "+429%"
     },
     {
       "term": "tools",
-      "curr": 27,
+      "curr": 36,
       "prev": 8,
-      "pct_change": 238,
-      "label": "+238%"
-    },
-    {
-      "term": "collaborative",
-      "curr": 27,
-      "prev": 0,
-      "pct_change": null,
-      "label": "NEW"
-    },
-    {
-      "term": "patchwork",
-      "curr": 27,
-      "prev": 0,
-      "pct_change": null,
-      "label": "NEW"
-    },
-    {
-      "term": "openai",
-      "curr": 26,
-      "prev": 11,
-      "pct_change": 136,
-      "label": "+136%"
-    },
-    {
-      "term": "local-first",
-      "curr": 26,
-      "prev": 0,
-      "pct_change": null,
-      "label": "NEW"
+      "pct_change": 350,
+      "label": "+350%"
     },
     {
       "term": "stat",
-      "curr": 24,
+      "curr": 36,
       "prev": 16,
-      "pct_change": 50,
-      "label": "+50%"
+      "pct_change": 125,
+      "label": "+125%"
+    },
+    {
+      "term": "aging",
+      "curr": 36,
+      "prev": 20,
+      "pct_change": 80,
+      "label": "+80%"
+    },
+    {
+      "term": "данных",
+      "curr": 34,
+      "prev": 13,
+      "pct_change": 162,
+      "label": "+162%"
+    },
+    {
+      "term": "production",
+      "curr": 33,
+      "prev": 11,
+      "pct_change": 200,
+      "label": "+200%"
+    },
+    {
+      "term": "claude",
+      "curr": 33,
+      "prev": 20,
+      "pct_change": 65,
+      "label": "+65%"
+    },
+    {
+      "term": "local-first",
+      "curr": 32,
+      "prev": 0,
+      "pct_change": null,
+      "label": "NEW"
     }
   ],
   "falling": [
-    {
-      "term": "karpathy",
-      "curr": 3,
-      "prev": 74,
-      "pct_change": -96,
-      "label": "-96%"
-    },
-    {
-      "term": "autoresearch",
-      "curr": 3,
-      "prev": 32,
-      "pct_change": -91,
-      "label": "-91%"
-    },
     {
       "term": "wellness",
       "curr": 4,
@@ -148,44 +148,30 @@
       "label": "-86%"
     },
     {
-      "term": "training",
-      "curr": 7,
-      "prev": 27,
-      "pct_change": -74,
-      "label": "-74%"
-    },
-    {
-      "term": "gpu",
-      "curr": 7,
-      "prev": 27,
-      "pct_change": -74,
-      "label": "-74%"
-    },
-    {
-      "term": "autonomous",
-      "curr": 11,
+      "term": "autoresearch",
+      "curr": 10,
       "prev": 32,
-      "pct_change": -66,
-      "label": "-66%"
+      "pct_change": -69,
+      "label": "-69%"
     },
     {
-      "term": "переходит",
-      "curr": 9,
-      "prev": 25,
-      "pct_change": -64,
-      "label": "-64%"
-    },
-    {
-      "term": "inference",
-      "curr": 12,
-      "prev": 29,
+      "term": "training",
+      "curr": 11,
+      "prev": 27,
       "pct_change": -59,
       "label": "-59%"
     },
     {
-      "term": "сигнал",
-      "curr": 28,
-      "prev": 63,
+      "term": "gpu",
+      "curr": 11,
+      "prev": 27,
+      "pct_change": -59,
+      "label": "-59%"
+    },
+    {
+      "term": "autonomous",
+      "curr": 14,
+      "prev": 32,
       "pct_change": -56,
       "label": "-56%"
     },
@@ -197,13 +183,6 @@
       "label": "-56%"
     },
     {
-      "term": "learning",
-      "curr": 13,
-      "prev": 28,
-      "pct_change": -54,
-      "label": "-54%"
-    },
-    {
       "term": "medicine",
       "curr": 11,
       "prev": 23,
@@ -213,124 +192,124 @@
   ],
   "top_terms": [
     {
-      "term": "control",
-      "count": 61
-    },
-    {
       "term": "llm",
-      "count": 59
-    },
-    {
-      "term": "может",
-      "count": 58
-    },
-    {
-      "term": "version",
-      "count": 52
+      "count": 84
     },
     {
       "term": "без",
-      "count": 50
+      "count": 68
     },
     {
-      "term": "ink",
-      "count": 47
+      "term": "control",
+      "count": 68
     },
     {
-      "term": "version control",
-      "count": 44
-    },
-    {
-      "term": "tech",
-      "count": 42
+      "term": "может",
+      "count": 60
     },
     {
       "term": "health",
-      "count": 42
+      "count": 54
     },
     {
-      "term": "safety",
-      "count": 39
+      "term": "ink",
+      "count": 54
     },
     {
-      "term": "longevity",
-      "count": 39
-    },
-    {
-      "term": "статья",
-      "count": 36
-    },
-    {
-      "term": "code",
-      "count": 31
-    },
-    {
-      "term": "агентов",
-      "count": 30
-    },
-    {
-      "term": "через",
-      "count": 28
-    },
-    {
-      "term": "инструменты",
-      "count": 28
-    },
-    {
-      "term": "данных",
-      "count": 28
+      "term": "version",
+      "count": 53
     },
     {
       "term": "сигнал",
-      "count": 28
+      "count": 48
     },
     {
-      "term": "research",
-      "count": 27
+      "term": "tech",
+      "count": 48
     },
     {
-      "term": "tools",
-      "count": 27
+      "term": "code",
+      "count": 45
     },
     {
-      "term": "collaborative",
-      "count": 27
+      "term": "safety",
+      "count": 45
     },
     {
-      "term": "patchwork",
-      "count": 27
+      "term": "version control",
+      "count": 45
+    },
+    {
+      "term": "агентов",
+      "count": 44
+    },
+    {
+      "term": "data",
+      "count": 43
     },
     {
       "term": "agent",
-      "count": 26
+      "count": 42
+    },
+    {
+      "term": "longevity",
+      "count": 42
+    },
+    {
+      "term": "через",
+      "count": 38
+    },
+    {
+      "term": "karpathy",
+      "count": 38
     },
     {
       "term": "растёт",
-      "count": 26
+      "count": 37
     },
     {
-      "term": "drug",
-      "count": 26
+      "term": "статья",
+      "count": 37
     },
     {
-      "term": "openai",
-      "count": 26
-    },
-    {
-      "term": "local-first",
-      "count": 26
-    },
-    {
-      "term": "claude",
-      "count": 25
+      "term": "tools",
+      "count": 36
     },
     {
       "term": "рынок",
-      "count": 25
+      "count": 36
     },
     {
       "term": "stat",
-      "count": 24
+      "count": 36
+    },
+    {
+      "term": "aging",
+      "count": 36
+    },
+    {
+      "term": "данных",
+      "count": 34
+    },
+    {
+      "term": "production",
+      "count": 33
+    },
+    {
+      "term": "claude",
+      "count": 33
+    },
+    {
+      "term": "сигнализирует",
+      "count": 32
+    },
+    {
+      "term": "local-first",
+      "count": 32
+    },
+    {
+      "term": "research",
+      "count": 31
     }
   ],
   "topic_curr": {
@@ -339,16 +318,16 @@
     "биохакинг": 5,
     "долголетие": 5,
     "biotech": 4,
+    "визуальное программирование": 4,
     "политика здравоохранения": 3,
     "безопасность": 3,
     "ai": 3,
     "AI in healthcare": 3,
     "биотехнологии": 3,
-    "визуальное программирование": 3,
+    "фармацевтика и регуляция": 3,
     "медицинская эпидемиология": 2,
     "RAG": 2,
-    "медицина": 2,
-    "biotechnology": 2
+    "медицина": 2
   },
   "topic_prev": {
     "биотех финансирование": 4,
