@@ -1,30 +1,65 @@
 {
-  "generated_at": "2026-03-27T03:05:01.933086",
+  "generated_at": "2026-03-28T03:05:01.695576",
   "week": "2026-W13",
   "prev_week": "2026-W12",
-  "curr_signals_count": 501,
+  "curr_signals_count": 600,
   "prev_signals_count": 300,
   "rising": [
     {
+      "term": "llm",
+      "curr": 98,
+      "prev": 63,
+      "pct_change": 56,
+      "label": "+56%"
+    },
+    {
+      "term": "без",
+      "curr": 92,
+      "prev": 52,
+      "pct_change": 77,
+      "label": "+77%"
+    },
+    {
       "term": "control",
-      "curr": 68,
+      "curr": 73,
       "prev": 5,
-      "pct_change": 1260,
-      "label": "+1260%"
+      "pct_change": 1360,
+      "label": "+1360%"
+    },
+    {
+      "term": "health",
+      "curr": 69,
+      "prev": 42,
+      "pct_change": 64,
+      "label": "+64%"
     },
     {
       "term": "может",
-      "curr": 60,
+      "curr": 63,
       "prev": 12,
-      "pct_change": 400,
-      "label": "+400%"
+      "pct_change": 425,
+      "label": "+425%"
+    },
+    {
+      "term": "code",
+      "curr": 61,
+      "prev": 18,
+      "pct_change": 239,
+      "label": "+239%"
     },
     {
       "term": "ink",
-      "curr": 54,
+      "curr": 55,
       "prev": 0,
       "pct_change": null,
       "label": "NEW"
+    },
+    {
+      "term": "safety",
+      "curr": 54,
+      "prev": 22,
+      "pct_change": 145,
+      "label": "+145%"
     },
     {
       "term": "version",
@@ -35,20 +70,41 @@
     },
     {
       "term": "tech",
-      "curr": 48,
+      "curr": 53,
       "prev": 19,
-      "pct_change": 153,
-      "label": "+153%"
+      "pct_change": 179,
+      "label": "+179%"
     },
     {
-      "term": "code",
-      "curr": 45,
-      "prev": 18,
-      "pct_change": 150,
-      "label": "+150%"
+      "term": "automation",
+      "curr": 51,
+      "prev": 26,
+      "pct_change": 96,
+      "label": "+96%"
     },
     {
-      "term": "safety",
+      "term": "через",
+      "curr": 49,
+      "prev": 29,
+      "pct_change": 69,
+      "label": "+69%"
+    },
+    {
+      "term": "data",
+      "curr": 47,
+      "prev": 19,
+      "pct_change": 147,
+      "label": "+147%"
+    },
+    {
+      "term": "агентов",
+      "curr": 47,
+      "prev": 27,
+      "pct_change": 74,
+      "label": "+74%"
+    },
+    {
+      "term": "растёт",
       "curr": 45,
       "prev": 22,
       "pct_change": 105,
@@ -62,90 +118,69 @@
       "label": "+1400%"
     },
     {
-      "term": "агентов",
-      "curr": 44,
-      "prev": 27,
-      "pct_change": 63,
-      "label": "+63%"
-    },
-    {
-      "term": "data",
+      "term": "claude",
       "curr": 43,
-      "prev": 19,
-      "pct_change": 126,
-      "label": "+126%"
-    },
-    {
-      "term": "растёт",
-      "curr": 37,
-      "prev": 22,
-      "pct_change": 68,
-      "label": "+68%"
-    },
-    {
-      "term": "статья",
-      "curr": 37,
-      "prev": 7,
-      "pct_change": 429,
-      "label": "+429%"
-    },
-    {
-      "term": "tools",
-      "curr": 36,
-      "prev": 8,
-      "pct_change": 350,
-      "label": "+350%"
+      "prev": 20,
+      "pct_change": 115,
+      "label": "+115%"
     },
     {
       "term": "stat",
-      "curr": 36,
+      "curr": 42,
       "prev": 16,
-      "pct_change": 125,
-      "label": "+125%"
+      "pct_change": 162,
+      "label": "+162%"
+    },
+    {
+      "term": "статья",
+      "curr": 41,
+      "prev": 7,
+      "pct_change": 486,
+      "label": "+486%"
     },
     {
       "term": "aging",
+      "curr": 41,
+      "prev": 20,
+      "pct_change": 105,
+      "label": "+105%"
+    },
+    {
+      "term": "production",
+      "curr": 40,
+      "prev": 11,
+      "pct_change": 264,
+      "label": "+264%"
+    },
+    {
+      "term": "tools",
+      "curr": 39,
+      "prev": 8,
+      "pct_change": 388,
+      "label": "+388%"
+    },
+    {
+      "term": "спрос",
       "curr": 36,
       "prev": 20,
       "pct_change": 80,
       "label": "+80%"
     },
     {
-      "term": "данных",
-      "curr": 34,
-      "prev": 13,
-      "pct_change": 162,
-      "label": "+162%"
-    },
-    {
-      "term": "production",
-      "curr": 33,
-      "prev": 11,
-      "pct_change": 200,
-      "label": "+200%"
-    },
-    {
-      "term": "claude",
-      "curr": 33,
-      "prev": 20,
-      "pct_change": 65,
-      "label": "+65%"
-    },
-    {
-      "term": "local-first",
-      "curr": 32,
-      "prev": 0,
-      "pct_change": null,
-      "label": "NEW"
+      "term": "research",
+      "curr": 35,
+      "prev": 21,
+      "pct_change": 67,
+      "label": "+67%"
     }
   ],
   "falling": [
     {
       "term": "wellness",
-      "curr": 4,
+      "curr": 5,
       "prev": 28,
-      "pct_change": -86,
-      "label": "-86%"
+      "pct_change": -82,
+      "label": "-82%"
     },
     {
       "term": "autoresearch",
@@ -156,63 +191,51 @@
     },
     {
       "term": "training",
-      "curr": 11,
-      "prev": 27,
-      "pct_change": -59,
-      "label": "-59%"
-    },
-    {
-      "term": "gpu",
-      "curr": 11,
-      "prev": 27,
-      "pct_change": -59,
-      "label": "-59%"
-    },
-    {
-      "term": "autonomous",
-      "curr": 14,
-      "prev": 32,
-      "pct_change": -56,
-      "label": "-56%"
-    },
-    {
-      "term": "nvidia",
       "curr": 12,
       "prev": 27,
       "pct_change": -56,
       "label": "-56%"
-    },
-    {
-      "term": "medicine",
-      "curr": 11,
-      "prev": 23,
-      "pct_change": -52,
-      "label": "-52%"
     }
   ],
   "top_terms": [
     {
       "term": "llm",
-      "count": 84
+      "count": 98
     },
     {
       "term": "без",
-      "count": 68
+      "count": 92
     },
     {
       "term": "control",
-      "count": 68
-    },
-    {
-      "term": "может",
-      "count": 60
+      "count": 73
     },
     {
       "term": "health",
-      "count": 54
+      "count": 69
+    },
+    {
+      "term": "может",
+      "count": 63
+    },
+    {
+      "term": "code",
+      "count": 61
+    },
+    {
+      "term": "сигнал",
+      "count": 61
+    },
+    {
+      "term": "рынок",
+      "count": 59
     },
     {
       "term": "ink",
+      "count": 55
+    },
+    {
+      "term": "safety",
       "count": 54
     },
     {
@@ -220,19 +243,35 @@
       "count": 53
     },
     {
-      "term": "сигнал",
-      "count": 48
-    },
-    {
       "term": "tech",
-      "count": 48
+      "count": 53
     },
     {
-      "term": "code",
-      "count": 45
+      "term": "longevity",
+      "count": 52
     },
     {
-      "term": "safety",
+      "term": "automation",
+      "count": 51
+    },
+    {
+      "term": "agent",
+      "count": 51
+    },
+    {
+      "term": "через",
+      "count": 49
+    },
+    {
+      "term": "data",
+      "count": 47
+    },
+    {
+      "term": "агентов",
+      "count": 47
+    },
+    {
+      "term": "растёт",
       "count": 45
     },
     {
@@ -240,76 +279,44 @@
       "count": 45
     },
     {
-      "term": "агентов",
-      "count": 44
-    },
-    {
-      "term": "data",
+      "term": "claude",
       "count": 43
     },
     {
-      "term": "agent",
+      "term": "сигнализирует",
       "count": 42
     },
     {
-      "term": "longevity",
+      "term": "stat",
       "count": 42
     },
     {
-      "term": "через",
-      "count": 38
+      "term": "статья",
+      "count": 41
+    },
+    {
+      "term": "aging",
+      "count": 41
+    },
+    {
+      "term": "production",
+      "count": 40
+    },
+    {
+      "term": "tools",
+      "count": 39
     },
     {
       "term": "karpathy",
       "count": 38
     },
     {
-      "term": "растёт",
-      "count": 37
-    },
-    {
-      "term": "статья",
-      "count": 37
-    },
-    {
-      "term": "tools",
+      "term": "спрос",
       "count": 36
-    },
-    {
-      "term": "рынок",
-      "count": 36
-    },
-    {
-      "term": "stat",
-      "count": 36
-    },
-    {
-      "term": "aging",
-      "count": 36
-    },
-    {
-      "term": "данных",
-      "count": 34
-    },
-    {
-      "term": "production",
-      "count": 33
-    },
-    {
-      "term": "claude",
-      "count": 33
-    },
-    {
-      "term": "сигнализирует",
-      "count": 32
-    },
-    {
-      "term": "local-first",
-      "count": 32
     },
     {
       "term": "research",
-      "count": 31
+      "count": 35
     }
   ],
   "topic_curr": {
@@ -317,9 +324,9 @@
     "AI": 6,
     "биохакинг": 5,
     "долголетие": 5,
+    "политика здравоохранения": 4,
     "biotech": 4,
     "визуальное программирование": 4,
-    "политика здравоохранения": 3,
     "безопасность": 3,
     "ai": 3,
     "AI in healthcare": 3,
