@@ -1,0 +1,391 @@
+{
+  "generated_at": "2026-03-30T03:05:01.111555",
+  "week": "2026-W14",
+  "prev_week": "2026-W13",
+  "curr_signals_count": 27,
+  "prev_signals_count": 810,
+  "rising": [
+    {
+      "term": "pretext",
+      "curr": 4,
+      "prev": 0,
+      "pct_change": null,
+      "label": "NEW"
+    },
+    {
+      "term": "world models",
+      "curr": 3,
+      "prev": 0,
+      "pct_change": null,
+      "label": "NEW"
+    }
+  ],
+  "falling": [
+    {
+      "term": "longevity",
+      "curr": 0,
+      "prev": 158,
+      "pct_change": -100,
+      "label": "-100%"
+    },
+    {
+      "term": "health",
+      "curr": 0,
+      "prev": 139,
+      "pct_change": -100,
+      "label": "-100%"
+    },
+    {
+      "term": "aging",
+      "curr": 0,
+      "prev": 96,
+      "pct_change": -100,
+      "label": "-100%"
+    },
+    {
+      "term": "biotech",
+      "curr": 0,
+      "prev": 84,
+      "pct_change": -100,
+      "label": "-100%"
+    },
+    {
+      "term": "therapy",
+      "curr": 0,
+      "prev": 77,
+      "pct_change": -100,
+      "label": "-100%"
+    },
+    {
+      "term": "tech",
+      "curr": 0,
+      "prev": 75,
+      "pct_change": -100,
+      "label": "-100%"
+    },
+    {
+      "term": "может",
+      "curr": 0,
+      "prev": 67,
+      "pct_change": -100,
+      "label": "-100%"
+    },
+    {
+      "term": "fda",
+      "curr": 0,
+      "prev": 64,
+      "pct_change": -100,
+      "label": "-100%"
+    },
+    {
+      "term": "trial",
+      "curr": 0,
+      "prev": 58,
+      "pct_change": -100,
+      "label": "-100%"
+    },
+    {
+      "term": "healthcare",
+      "curr": 0,
+      "prev": 56,
+      "pct_change": -100,
+      "label": "-100%"
+    },
+    {
+      "term": "disease",
+      "curr": 0,
+      "prev": 55,
+      "pct_change": -100,
+      "label": "-100%"
+    },
+    {
+      "term": "ink",
+      "curr": 0,
+      "prev": 55,
+      "pct_change": -100,
+      "label": "-100%"
+    },
+    {
+      "term": "version",
+      "curr": 0,
+      "prev": 53,
+      "pct_change": -100,
+      "label": "-100%"
+    },
+    {
+      "term": "phase",
+      "curr": 0,
+      "prev": 51,
+      "pct_change": -100,
+      "label": "-100%"
+    },
+    {
+      "term": "clinical",
+      "curr": 1,
+      "prev": 78,
+      "pct_change": -99,
+      "label": "-99%"
+    },
+    {
+      "term": "растёт",
+      "curr": 1,
+      "prev": 72,
+      "pct_change": -99,
+      "label": "-99%"
+    },
+    {
+      "term": "data",
+      "curr": 1,
+      "prev": 68,
+      "pct_change": -99,
+      "label": "-99%"
+    },
+    {
+      "term": "drug",
+      "curr": 1,
+      "prev": 63,
+      "pct_change": -98,
+      "label": "-98%"
+    },
+    {
+      "term": "automation",
+      "curr": 1,
+      "prev": 58,
+      "pct_change": -98,
+      "label": "-98%"
+    },
+    {
+      "term": "рынок",
+      "curr": 3,
+      "prev": 109,
+      "pct_change": -97,
+      "label": "-97%"
+    },
+    {
+      "term": "сигнал",
+      "curr": 3,
+      "prev": 97,
+      "pct_change": -97,
+      "label": "-97%"
+    },
+    {
+      "term": "control",
+      "curr": 2,
+      "prev": 78,
+      "pct_change": -97,
+      "label": "-97%"
+    },
+    {
+      "term": "через",
+      "curr": 2,
+      "prev": 74,
+      "pct_change": -97,
+      "label": "-97%"
+    },
+    {
+      "term": "safety",
+      "curr": 2,
+      "prev": 63,
+      "pct_change": -97,
+      "label": "-97%"
+    },
+    {
+      "term": "сигнализирует",
+      "curr": 2,
+      "prev": 59,
+      "pct_change": -97,
+      "label": "-97%"
+    },
+    {
+      "term": "без",
+      "curr": 6,
+      "prev": 142,
+      "pct_change": -96,
+      "label": "-96%"
+    },
+    {
+      "term": "agent",
+      "curr": 3,
+      "prev": 60,
+      "pct_change": -95,
+      "label": "-95%"
+    },
+    {
+      "term": "code",
+      "curr": 4,
+      "prev": 64,
+      "pct_change": -94,
+      "label": "-94%"
+    },
+    {
+      "term": "llm",
+      "curr": 9,
+      "prev": 109,
+      "pct_change": -92,
+      "label": "-92%"
+    },
+    {
+      "term": "агентов",
+      "curr": 5,
+      "prev": 56,
+      "pct_change": -91,
+      "label": "-91%"
+    }
+  ],
+  "top_terms": [
+    {
+      "term": "llm",
+      "count": 9
+    },
+    {
+      "term": "anthropic",
+      "count": 8
+    },
+    {
+      "term": "optimization",
+      "count": 6
+    },
+    {
+      "term": "без",
+      "count": 6
+    },
+    {
+      "term": "api",
+      "count": 6
+    },
+    {
+      "term": "agi",
+      "count": 6
+    },
+    {
+      "term": "prompt",
+      "count": 6
+    },
+    {
+      "term": "агентов",
+      "count": 5
+    },
+    {
+      "term": "pretext",
+      "count": 4
+    },
+    {
+      "term": "development",
+      "count": 4
+    },
+    {
+      "term": "code",
+      "count": 4
+    },
+    {
+      "term": "generation",
+      "count": 4
+    },
+    {
+      "term": "developer",
+      "count": 4
+    },
+    {
+      "term": "claude",
+      "count": 4
+    },
+    {
+      "term": "world",
+      "count": 4
+    },
+    {
+      "term": "models",
+      "count": 4
+    },
+    {
+      "term": "reasoning",
+      "count": 4
+    },
+    {
+      "term": "перевод",
+      "count": 4
+    },
+    {
+      "term": "openai",
+      "count": 4
+    },
+    {
+      "term": "project",
+      "count": 4
+    },
+    {
+      "term": "research",
+      "count": 4
+    },
+    {
+      "term": "tools",
+      "count": 4
+    },
+    {
+      "term": "сигнал",
+      "count": 3
+    },
+    {
+      "term": "world models",
+      "count": 3
+    },
+    {
+      "term": "безопасность",
+      "count": 3
+    },
+    {
+      "term": "agent",
+      "count": 3
+    },
+    {
+      "term": "рынок",
+      "count": 3
+    },
+    {
+      "term": "компании",
+      "count": 3
+    },
+    {
+      "term": "image",
+      "count": 3
+    },
+    {
+      "term": "engineering",
+      "count": 3
+    }
+  ],
+  "topic_curr": {
+    "браузерная оптимизация": 1,
+    "инструменты разработки": 1,
+    "supply-chain security": 1,
+    "world models for agi": 1,
+    "корпоративная политика openai": 1,
+    "финвиз + ai": 1,
+    "безопасность облачных агентов": 1,
+    "AI бум vs доткомы": 1,
+    "ai кодирование парадигмы": 1,
+    "mcp инструменты для агентов": 1,
+    "llm в business research": 1,
+    "prompt engineering image generation": 1,
+    "claude api best practices": 1,
+    "общественное восприятие ai": 1,
+    "agi-архитектура, агентная автономия": 1
+  },
+  "topic_prev": {
+    "AI/tech": 12,
+    "AI": 6,
+    "биохакинг": 5,
+    "долголетие": 5,
+    "политика здравоохранения": 4,
+    "biotech": 4,
+    "визуальное программирование": 4,
+    "безопасность": 3,
+    "ai": 3,
+    "AI in healthcare": 3,
+    "биотехнологии": 3,
+    "биохакинг и долголетие": 3,
+    "фармацевтика и регуляция": 3,
+    "ai в медицине": 3,
+    "биомаркеры старения": 3
+  }
+}
